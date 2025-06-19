@@ -100,9 +100,7 @@ def generate_llm_response(user_prompt, dashboard_state):
     Streams the response.
     """
     context = f"""
-You are VIRA, an AI assistant for a Voice of Customer (VOC) Dashboard.
-Your role is to help users understand the dashboard data and insights.
-Be concise and helpful.
+Kamu akan berperan sebagai konsultan virtual pada bank BCA. Kamu akan menganalisis dan juga memberikan insight seputar dashboard ini.
 
 Here is a summary of the current dashboard view based on selected filters:
 - Selected Time Period for Health Score: {dashboard_state.get('time_period_label', 'N/A')}
@@ -508,8 +506,7 @@ if page == "Dashboard":
                 full_response = f"An unexpected error occurred: {str(e)}"
                 message_placeholder.error(full_response)
 
-        st.session_state.messages.append({"role": "Kamu akan berperan sebagai konsultan virtual pada bank BCA. Kamu akan menganalisis dan juga memberikan insight seputar dashboard ini."
-, "content": full_response})
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 else:
     st.markdown(f"## {page}")
