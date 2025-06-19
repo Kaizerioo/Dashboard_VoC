@@ -514,7 +514,12 @@ if page == "Dashboard":
             accumulated_raw_response = ""
             content_for_streaming = ""
 
-            # ... (persiapan dashboard_state_for_llm tetap sama) ...
+            dashboard_state_for_llm = {
+                **current_health_data, # contains score, trend, trend_label, time_period_label
+                "sentiment_summary": live_sentiment_summary_for_llm,
+                "intent_summary": live_intent_summary_for_llm,
+                "volume_summary": live_volume_summary_for_llm,
+            }
 
             try:
                 for chunk in generate_llm_response(prompt, dashboard_state_for_llm, SYSTEM_PROMPT_VIRA):
