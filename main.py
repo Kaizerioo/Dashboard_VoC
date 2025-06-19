@@ -89,54 +89,83 @@ st.markdown("""
 
 # --- NVIDIA API Client Initialization ---
 # WARNING: Hardcoding API keys is a security risk. Use secrets management in production.
+SYSTEM_PROMPT_VIRA = """
+Anda adalah VIRA, seorang konsultan virtual ahli untuk Bank BCA.
+Tugas utama Anda adalah menganalisis data dasbor yang disediakan dan memberikan wawasan, ringkasan, serta saran yang relevan.
+Fokuslah pada metrik seperti skor kesehatan, tren, sentimen pelanggan, niat panggilan, dan volume panggilan.
+Selalu dasarkan jawaban Anda pada data yang diberikan dalam `dashboard_state`.
+Gunakan bahasa Indonesia yang profesional, sopan, dan mudah dimengerti.
+Jika ada pertanyaan yang tidak dapat dijawab dari data dasbor, sampaikan dengan sopan bahwa informasi tersebut tidak tersedia dalam tampilan dasbor saat ini atau minta pengguna untuk memberikan detail lebih lanjut.
+Berikan analisis yang ringkas namun mendalam.
+
+PENTING:
+Sebelum memberikan jawaban akhir kepada pengguna, Anda BOLEH melakukan analisis internal atau "berpikir".
+Jika Anda melakukan proses berpikir internal, tuliskan pemikiran tersebut.
+Setelah selesai berpikir, akhiri bagian pemikiran Anda dengan tag </think>.
+Teks APAPUN setelah tag </think> akan menjadi jawaban yang ditampilkan kepada pengguna.
+Jika tidak ada proses berpikir khusus atau analisis internal yang perlu dituliskan, langsung berikan jawaban tanpa tag </think>.
+"""
+
+# Inisialisasi klien OpenAI untuk NVIDIA API
+# Ganti API_KEY dengan API Key Anda yang sebenarnya
+NVIDIA_API_KEY = "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" # Sebaiknya disimpan di environment variable
+NVIDIA_API_BASE_URL = "https://integrate.api.nvidia.com/v1"
+
 client = OpenAI(
-  base_url = "https://integrate.api.nvidia.com/v1",
-  api_key = "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"
+  api_key=NVIDIA_API_KEY,
+  base_url=NVIDIA_API_BASE_URL
 )
 
-def generate_llm_response(user_prompt, dashboard_state):
+def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: str):
     """
-    Generates a response from the LLM based on the user prompt and dashboard state.
+    Generates a response from the LLM based on the user prompt, dashboard state, and system prompt.
     Streams the response.
     """
-    context = f"""
-Kamu akan berperan sebagai konsultan virtual pada bank BCA. Kamu akan menganalisis dan juga memberikan insight seputar dashboard ini.
+    # Format dashboard state untuk LLM agar lebih mudah dibaca
+    dashboard_summary_for_llm = f"""
+Ringkasan tampilan dasbor saat ini berdasarkan filter yang dipilih:
+- Periode Waktu Terpilih untuk Skor Kesehatan: {dashboard_state.get('time_period_label', 'N/A')}
+- Skor Kesehatan Pelanggan: {dashboard_state.get('score', 'N/A')}% (Tren: {dashboard_state.get('trend', 'N/A')} - {dashboard_state.get('trend_label', 'N/A')})
 
-Here is a summary of the current dashboard view based on selected filters:
-- Selected Time Period for Health Score: {dashboard_state.get('time_period_label', 'N/A')}
-- Customer Health Score: {dashboard_state.get('score', 'N/A')}% (Trend: {dashboard_state.get('trend', 'N/A')} {dashboard_state.get('trend_label', 'N/A')})
+Ringkasan Grafik Langsung (perkiraan berdasarkan filter saat ini):
+- Distribusi Sentimen: Positif: {dashboard_state.get('sentiment_summary', {}).get('Positive', 'N/A')}, Netral: {dashboard_state.get('sentiment_summary', {}).get('Neutral', 'N/A')}, Negatif: {dashboard_state.get('sentiment_summary', {}).get('Negative', 'N/A')}.
+- Distribusi Niat: {'; '.join([f"{k}: {v}" for k, v in dashboard_state.get('intent_summary', {}).items()]) if dashboard_state.get('intent_summary') else 'N/A'}.
+- Tren Volume: {dashboard_state.get('volume_summary', 'N/A')}.
 
-Live Chart Summaries (approximations based on current filters):
-- Sentiment Distribution: Positive: {dashboard_state.get('sentiment_summary', {}).get('Positive', 'N/A')}, Neutral: {dashboard_state.get('sentiment_summary', {}).get('Neutral', 'N/A')}, Negative: {dashboard_state.get('sentiment_summary', {}).get('Negative', 'N/A')}.
-- Intent Distribution: {'; '.join([f"{k}: {v}" for k, v in dashboard_state.get('intent_summary', {}).items()]) if dashboard_state.get('intent_summary') else 'N/A'}.
-- Volume Trend: {dashboard_state.get('volume_summary', 'N/A')}.
-
-General Dashboard Information (these are examples, specific alerts/hotspots may vary and should be checked on their respective cards):
-- Critical Alerts: May highlight issues like "Sudden Spike in Negative Sentiment" or "High Churn Risk".
-- Predictive Hotspots: Could point to "Policy Confusion" or "UI Issues".
-- Top Customer Themes (Positive): Examples include "Fast Customer Service", "Easy Mobile Banking".
-- Top Customer Themes (Negative): Examples include "App Technical Issues", "Long Wait Times".
-- Opportunity Radar: Identifies areas like "Delightful Features", "Cross-Sell Opportunities", "Service Excellence".
-
-Based on this context and your general knowledge, please answer the user's question.
-If the question is about specific details not covered in this summary, you can suggest the user check the relevant dashboard section.
-User question: "{user_prompt}"
+Informasi Dasbor Umum (ini adalah contoh, peringatan/hotspot spesifik dapat bervariasi dan harus diperiksa pada kartunya masing-masing):
+- Peringatan Kritis: Dapat menyoroti masalah seperti "Lonjakan Mendadak dalam Sentimen Negatif" atau "Risiko Churn Tinggi".
+- Hotspot Prediktif: Bisa menunjuk ke "Kebingungan Kebijakan" atau "Masalah UI".
+- Tema Pelanggan Teratas (Positif): Contohnya "Layanan Pelanggan Cepat", "Mobile Banking Mudah".
+- Tema Pelanggan Teratas (Negatif): Contohnya "Masalah Teknis Aplikasi", "Waktu Tunggu Lama".
+- Radar Peluang: Mengidentifikasi area seperti "Fitur yang Menyenangkan", "Peluang Cross-Sell", "Keunggulan Layanan".
 """
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"{dashboard_summary_for_llm}\n\nPertanyaan Pengguna: \"{user_prompt}\"\n\nJawaban VIRA:"}
+    ]
+
     try:
         completion = client.chat.completions.create(
+            # Ganti dengan model chat completion yang tersedia dan Anda inginkan
+            # Contoh: 'meta/llama3-8b-instruct' atau 'mistralai/mixtral-8x7b-instruct-v0.1'
+            # Atau model yang Anda gunakan sebelumnya jika masih ingin memakainya:
             model="deepseek-ai/deepseek-r1-distill-qwen-32b",
-            messages=[{"role": "user", "content": context}],
-            temperature=0.5, # Adjusted slightly for more factual responses
+            messages=messages,
+            temperature=0.3, # Turunkan untuk respons yang lebih faktual dan konsisten dengan persona
             top_p=0.7,
-            max_tokens=1024, # Sufficient for chat responses
+            max_tokens=1024,
             stream=True
         )
         for chunk in completion:
-            if chunk.choices[0].delta.content is not None:
+            if chunk.choices[0].delta and chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
     except Exception as e:
-        st.error(f"LLM API Error: {e}") # Show error in Streamlit UI as well
-        yield f"Sorry, I encountered an error while trying to connect to the AI service: {str(e)}. Please check the console or try again later."
+        error_message = f"Maaf, terjadi kesalahan saat menghubungi layanan AI: {str(e)}. Silakan coba lagi nanti atau periksa konsol."
+        # Log error ke konsol juga untuk debugging
+        print(f"LLM API Error: {e}")
+        # Di Streamlit, error ditampilkan di UI, jadi yield pesan error agar placeholder bisa menampilkannya
+        yield error_message
 
 # Generate health score data
 def generate_health_score_data():
