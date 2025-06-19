@@ -527,7 +527,7 @@ if page == "Dashboard":
             }
 
             try:
-                for chunk in generate_llm_response(prompt, dashboard_state_for_llm):
+                for chunk in generate_llm_response(prompt, dashboard_state_for_llm, SYSTEM_PROMPT_VIRA):
                     full_response += chunk
                     message_placeholder.markdown(full_response + "▌") # Typing effect
                 message_placeholder.markdown(full_response) # Final response
