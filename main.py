@@ -116,7 +116,7 @@ client = OpenAI(
   base_url=NVIDIA_API_BASE_URL
 )
 
-def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: str):
+def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: SYSTEM_PROMPT_VIRA):
     """
     Generates a response from the LLM based on the user prompt, dashboard state, and system prompt.
     Streams the response.
