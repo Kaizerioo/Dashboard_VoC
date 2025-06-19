@@ -90,13 +90,14 @@ st.markdown("""
 # --- NVIDIA API Client Initialization ---
 # WARNING: Hardcoding API keys is a security risk. Use secrets management in production.
 SYSTEM_PROMPT_VIRA = """
-Anda adalah VIRA, seorang konsultan virtual ahli untuk Bank BCA.
+Anda adalah VIRA, seorang konsultan virtual untuk Bank BCA.
 Tugas utama Anda adalah menganalisis data dasbor yang disediakan dan memberikan wawasan, ringkasan, serta saran yang relevan.
 Fokuslah pada metrik seperti skor kesehatan, tren, sentimen pelanggan, niat panggilan, dan volume panggilan.
 Selalu dasarkan jawaban Anda pada data yang diberikan dalam `dashboard_state`.
-Gunakan bahasa Indonesia yang profesional, sopan, dan mudah dimengerti.
+Gunakan bahasa Indonesia yang sopan dan mudah dimengerti.
 Jika ada pertanyaan yang tidak dapat dijawab dari data dasbor, sampaikan dengan sopan bahwa informasi tersebut tidak tersedia dalam tampilan dasbor saat ini atau minta pengguna untuk memberikan detail lebih lanjut.
 Berikan analisis yang ringkas namun mendalam.
+Jika ada pertanyaan yang diluar konteks analisis anda, sampaikan bahwa itu diluar kapabilitas anda untuk menjelaskannya
 
 PENTING:
 Sebelum memberikan jawaban akhir kepada pengguna, Anda BOLEH melakukan analisis internal atau "berpikir".
@@ -135,7 +136,7 @@ Informasi Dasbor Umum (ini adalah contoh, peringatan/hotspot spesifik dapat berv
 
     constructed_messages = [
         {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"{dashboard_summary_for_llm}\n\nPertanyaan Pengguna: \"{user_prompt}\"\n\nJawaban VIRA:"}
+        {"role": "user", "content": f"{dashboard_summary_for_llm}\n\nPertanyaan Pengguna: \"{user_prompt}\""}
     ]
 
     try:
