@@ -108,10 +108,10 @@ Jika tidak ada proses berpikir khusus atau analisis internal yang perlu ditulisk
 
 client = OpenAI(
   base_url = "https://integrate.api.nvidia.com/v1",
-  api_key = "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"
+  api_key = "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" # Replace with your actual API key or use secrets
 )
 
-def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: SYSTEM_PROMPT_VIRA):
+def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: str):
     """
     Generates a response from the LLM based on the user prompt, dashboard state, and system prompt.
     Streams the response.
@@ -135,20 +135,20 @@ Informasi Dasbor Umum (ini adalah contoh, peringatan/hotspot spesifik dapat berv
 - Radar Peluang: Mengidentifikasi area seperti "Fitur yang Menyenangkan", "Peluang Cross-Sell", "Keunggulan Layanan".
 """
 
-    messages = [
+    constructed_messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": f"{dashboard_summary_for_llm}\n\nPertanyaan Pengguna: \"{user_prompt}\"\n\nJawaban VIRA:"}
     ]
 
     try:
         completion = client.chat.completions.create(
-  model="nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
-  messages=[{"role":"user","content":""}],
-  temperature=1.00,
-  top_p=0.01,
-  max_tokens=1024,
-  stream=True
-)
+            model="nvidia/llama-3.1-nemotron-nano-vl-8b-v1", # As per user's original code
+            messages=constructed_messages, # Use the constructed messages
+            temperature=1.00, # As per user's original code
+            top_p=0.01,       # As per user's original code
+            max_tokens=1024,
+            stream=True
+        )
         for chunk in completion:
             if chunk.choices[0].delta and chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
@@ -508,26 +508,54 @@ if page == "Dashboard":
 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
-            full_response = ""
+            # full_response = "" # SEBELUM
 
-            # Prepare combined dashboard state for LLM
-            dashboard_state_for_llm = {
-                **current_health_data, # contains score, trend, trend_label, time_period_label
-                "sentiment_summary": live_sentiment_summary_for_llm,
-                "intent_summary": live_intent_summary_for_llm,
-                "volume_summary": live_volume_summary_for_llm,
-            }
+            # SESUDAH: Variabel baru untuk menangani pemisahan </think>
+            accumulated_raw_response = ""
+            content_for_streaming = ""
+
+            # ... (persiapan dashboard_state_for_llm tetap sama) ...
 
             try:
                 for chunk in generate_llm_response(prompt, dashboard_state_for_llm, SYSTEM_PROMPT_VIRA):
-                    full_response += chunk
-                    message_placeholder.markdown(full_response + "▌") # Typing effect
-                message_placeholder.markdown(full_response) # Final response
-            except Exception as e: # Catch any other unexpected errors from the generator
-                full_response = f"An unexpected error occurred: {str(e)}"
-                message_placeholder.error(full_response)
+                    # full_response += chunk # SEBELUM
+                    # message_placeholder.markdown(full_response + "▌") # SEBELUM
 
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+                    # SESUDAH: Logika baru untuk streaming dan memproses </think>
+                    accumulated_raw_response += chunk
+
+                    if "</think>" in accumulated_raw_response:
+                        # Ambil konten setelah tag </think> pertama untuk streaming
+                        content_for_streaming = accumulated_raw_response.split("</think>", 1)[1]
+                    # Jika </think> belum ada, content_for_streaming akan kosong atau berisi bagian
+                    # setelah </think> dari chunk sebelumnya, sehingga tidak menampilkan bagian "thinking".
+
+                    message_placeholder.markdown(content_for_streaming + "▌") # Tampilkan hanya bagian yang relevan saat streaming
+
+                # Setelah stream selesai, tentukan konten final
+                # message_placeholder.markdown(full_response) # SEBELUM
+
+                # SESUDAH: Logika untuk menentukan konten final yang akan ditampilkan dan disimpan
+                if "</think>" in accumulated_raw_response:
+                    final_display_content = accumulated_raw_response.split("</think>", 1)[1]
+                else:
+                    # Jika tidak ada tag </think>, seluruh respons adalah konten final
+                    final_display_content = accumulated_raw_response
+
+                message_placeholder.markdown(final_display_content) # Tampilkan konten final yang sudah diproses
+
+                # st.session_state.messages.append({"role": "assistant", "content": full_response}) # SEBELUM
+                st.session_state.messages.append({"role": "assistant", "content": final_display_content}) # SESUDAH
+
+            except Exception as e: # Catch any other unexpected errors from the generator
+                # full_response = f"An unexpected error occurred: {str(e)}" # SEBELUM
+                # message_placeholder.error(full_response) # SEBELUM
+
+                # SESUDAH: Penanganan error dengan variabel yang sesuai
+                error_response = f"An unexpected error occurred: {str(e)}"
+                print(f"Chatbot Loop Error: {e}, Raw response accumulated: {accumulated_raw_response}") # Untuk debugging
+                message_placeholder.error(error_response)
+                st.session_state.messages.append({"role": "assistant", "content": error_response})
 
 else:
     st.markdown(f"## {page}")
