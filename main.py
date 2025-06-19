@@ -106,14 +106,9 @@ Teks APAPUN setelah tag </think> akan menjadi jawaban yang ditampilkan kepada pe
 Jika tidak ada proses berpikir khusus atau analisis internal yang perlu dituliskan, langsung berikan jawaban tanpa tag </think>.
 """
 
-# Inisialisasi klien OpenAI untuk NVIDIA API
-# Ganti API_KEY dengan API Key Anda yang sebenarnya
-NVIDIA_API_KEY = "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" # Sebaiknya disimpan di environment variable
-NVIDIA_API_BASE_URL = "https://integrate.api.nvidia.com/v1"
-
 client = OpenAI(
-  api_key=NVIDIA_API_KEY,
-  base_url=NVIDIA_API_BASE_URL
+  base_url = "https://integrate.api.nvidia.com/v1",
+  api_key = "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"
 )
 
 def generate_llm_response(user_prompt: str, dashboard_state: dict, system_prompt: SYSTEM_PROMPT_VIRA):
@@ -147,16 +142,13 @@ Informasi Dasbor Umum (ini adalah contoh, peringatan/hotspot spesifik dapat berv
 
     try:
         completion = client.chat.completions.create(
-            # Ganti dengan model chat completion yang tersedia dan Anda inginkan
-            # Contoh: 'meta/llama3-8b-instruct' atau 'mistralai/mixtral-8x7b-instruct-v0.1'
-            # Atau model yang Anda gunakan sebelumnya jika masih ingin memakainya:
-            model="deepseek-ai/deepseek-r1-distill-qwen-32b",
-            messages=messages,
-            temperature=0.3, # Turunkan untuk respons yang lebih faktual dan konsisten dengan persona
-            top_p=0.7,
-            max_tokens=1024,
-            stream=True
-        )
+  model="nvidia/llama-3.1-nemotron-nano-vl-8b-v1",
+  messages=[{"role":"user","content":""}],
+  temperature=1.00,
+  top_p=0.01,
+  max_tokens=1024,
+  stream=True
+)
         for chunk in completion:
             if chunk.choices[0].delta and chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
