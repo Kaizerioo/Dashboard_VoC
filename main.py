@@ -508,7 +508,8 @@ if page == "Dashboard":
                 full_response = f"An unexpected error occurred: {str(e)}"
                 message_placeholder.error(full_response)
 
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.messages.append({"role": "Kamu akan berperan sebagai konsultan virtual pada bank BCA. Kamu akan menganalisis dan juga memberikan insight seputar dashboard ini."
+, "content": full_response})
 
 else:
     st.markdown(f"## {page}")
