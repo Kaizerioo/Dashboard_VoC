@@ -490,7 +490,7 @@ if page == "Dashboard":
         """)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # VIRA Chat Assistant
+ # VIRA Chat Assistant
     st.markdown("## Chat with VIRA")
     if "messages" not in st.session_state:
         st.session_state.messages = [
@@ -508,12 +508,9 @@ if page == "Dashboard":
 
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
-            # full_response = "" # SEBELUM
+            full_response = ""
 
-            # SESUDAH: Variabel baru untuk menangani pemisahan </think>
-            accumulated_raw_response = ""
-            content_for_streaming = ""
-
+            # Prepare combined dashboard state for LLM
             dashboard_state_for_llm = {
                 **current_health_data, # contains score, trend, trend_label, time_period_label
                 "sentiment_summary": live_sentiment_summary_for_llm,
@@ -523,44 +520,14 @@ if page == "Dashboard":
 
             try:
                 for chunk in generate_llm_response(prompt, dashboard_state_for_llm, SYSTEM_PROMPT_VIRA):
-                    # full_response += chunk # SEBELUM
-                    # message_placeholder.markdown(full_response + "▌") # SEBELUM
-
-                    # SESUDAH: Logika baru untuk streaming dan memproses </think>
-                    accumulated_raw_response += chunk
-
-                    if "</think>" in accumulated_raw_response:
-                        # Ambil konten setelah tag </think> pertama untuk streaming
-                        content_for_streaming = accumulated_raw_response.split("</think>", 1)[1]
-                    # Jika </think> belum ada, content_for_streaming akan kosong atau berisi bagian
-                    # setelah </think> dari chunk sebelumnya, sehingga tidak menampilkan bagian "thinking".
-
-                    message_placeholder.markdown(content_for_streaming + "▌") # Tampilkan hanya bagian yang relevan saat streaming
-
-                # Setelah stream selesai, tentukan konten final
-                # message_placeholder.markdown(full_response) # SEBELUM
-
-                # SESUDAH: Logika untuk menentukan konten final yang akan ditampilkan dan disimpan
-                if "</think>" in accumulated_raw_response:
-                    final_display_content = accumulated_raw_response.split("</think>", 1)[1]
-                else:
-                    # Jika tidak ada tag </think>, seluruh respons adalah konten final
-                    final_display_content = accumulated_raw_response
-
-                message_placeholder.markdown(final_display_content) # Tampilkan konten final yang sudah diproses
-
-                # st.session_state.messages.append({"role": "assistant", "content": full_response}) # SEBELUM
-                st.session_state.messages.append({"role": "assistant", "content": final_display_content}) # SESUDAH
-
+                    full_response += chunk
+                    message_placeholder.markdown(full_response + "▌") # Typing effect
+                message_placeholder.markdown(full_response) # Final response
             except Exception as e: # Catch any other unexpected errors from the generator
-                # full_response = f"An unexpected error occurred: {str(e)}" # SEBELUM
-                # message_placeholder.error(full_response) # SEBELUM
+                full_response = f"An unexpected error occurred: {str(e)}"
+                message_placeholder.error(full_response)
 
-                # SESUDAH: Penanganan error dengan variabel yang sesuai
-                error_response = f"An unexpected error occurred: {str(e)}"
-                print(f"Chatbot Loop Error: {e}, Raw response accumulated: {accumulated_raw_response}") # Untuk debugging
-                message_placeholder.error(error_response)
-                st.session_state.messages.append({"role": "assistant", "content": error_response})
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
 else:
     st.markdown(f"## {page}")
