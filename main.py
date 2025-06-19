@@ -100,10 +100,8 @@ Berikan analisis yang ringkas namun mendalam.
 
 PENTING:
 Sebelum memberikan jawaban akhir kepada pengguna, Anda BOLEH melakukan analisis internal atau "berpikir".
-Jika Anda melakukan proses berpikir internal, tuliskan pemikiran tersebut.
-Setelah selesai berpikir, akhiri bagian pemikiran Anda dengan tag </think>.
-Teks APAPUN setelah tag </think> akan menjadi jawaban yang ditampilkan kepada pengguna.
-Jika tidak ada proses berpikir khusus atau analisis internal yang perlu dituliskan, langsung berikan jawaban tanpa tag </think>.
+Jika Anda melakukan proses berpikir internal, *JANGAN* tuliskan pemikiran tersebut.
+Jika tidak ada proses berpikir khusus atau analisis internal yang perlu dituliskan, langsung berikan jawaban
 """
 
 client = OpenAI(
