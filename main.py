@@ -381,7 +381,7 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        # st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
         st.markdown("### Customer Health Score")
         health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
         score_col1, score_col2 = st.columns([1, 2])
@@ -391,7 +391,7 @@ if page == "Dashboard":
             trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
             trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
             st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
-
+    
         fig_health = go.Figure()
         fig_health.add_trace(go.Scatter(
             x=current_health_data["labels"], y=current_health_data["values"], mode='lines', fill='tozeroy',
@@ -404,7 +404,7 @@ if page == "Dashboard":
         )
         st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
         st.markdown("Overall customer satisfaction is strong, showing a positive trend this month.") # Example text
-        # st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)  # Close the metric-card div
 
     with col2: # Critical Alerts (static content)
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
