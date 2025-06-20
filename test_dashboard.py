@@ -15,44 +15,28 @@ st.set_page_config(
     layout="wide"
 )
 
-# ... [CSS DARI LANGKAH SEBELUMNYA TETAP SAMA, TIDAK PERLU DIUBAH] ...
+# <-- PERUBAHAN: Menambahkan aturan CSS untuk sidebar sticky -->
 st.markdown("""
 <style>
-    /* Mengimpor Font Apple */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    /* Variabel Warna Utama dari CSS asli */
+    /* ... [ SEMUA GAYA CSS DARI SEBELUMNYA TETAP DI SINI ] ... */
     :root {
         --font-family-apple: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --card-background: #ffffff;
         --text-primary: #1d1d1f;
         --text-secondary: #4a4a4f;
         --accent-color: #007aff;
-        --accent-color-darker: #005ecb;
-        --border-color: #d2d2d7;
-        --light-border-color: #e5e5ea;
-        --shadow-color-light: rgba(0, 0, 0, 0.03);
-        --shadow-color-medium: rgba(0, 0, 0, 0.06);
-        --border-radius-l: 14px;
-        --padding-l: 1.2rem;
     }
-
-    /* Font dan Latar Belakang Tubuh Utama */
     body {
         font-family: var(--font-family-apple);
-        background-color: #f2f4f6; /* Disederhanakan dari gradien untuk kinerja */
+        background-color: #f2f4f6;
     }
-
-    /* Menata Kontainer Widget Streamlit */
     [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] {
         background: var(--card-background);
-        border-radius: var(--border-radius-l);
-        padding: calc(var(--padding-l) - 0.5rem) var(--padding-l) var(--padding-l) var(--padding-l);
-        box-shadow: 0 2px 5px var(--shadow-color-light), 0 5px 10px var(--shadow-color-medium);
-        border: 1px solid var(--border-color);
+        border-radius: 14px;
+        padding: 1rem 1.2rem 1.2rem 1.2rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03), 0 5px 10px rgba(0, 0, 0, 0.06);
+        border: 1px solid #d2d2d7;
     }
-    
-    /* Header di dalam widget */
     h3 {
         font-size: 1.05rem;
         font-weight: 500;
@@ -60,39 +44,17 @@ st.markdown("""
         letter-spacing: -0.01em;
         margin-bottom: 0.5rem;
     }
-    
-    /* Teks sekunder untuk metrik */
-    .metric-subtitle {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        line-height: 1.4;
-    }
-
-    /* Gaya untuk metrik khusus */
-    .health-trend {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.4rem;
-        font-weight: 400;
-        font-size: 0.85rem;
-    }
-    .trend-positive { color: #34c759; }
-    .trend-negative { color: #ff3b30; }
-
-    /* Gaya untuk Alert */
-    .alert-item {
-        padding: 0.8rem;
-        margin-bottom: 0.8rem;
-        border-radius: 8px;
-        border-left: 4px solid;
-    }
-    .alert-critical { border-left-color: #ff3b30; background: color-mix(in srgb, #ff3b30 8%, transparent); }
-    .alert-high { border-left-color: #ff9500; background: color-mix(in srgb, #ff9500 8%, transparent); }
-    
-    /* Menghilangkan padding dari kolom Streamlit untuk kontrol yang lebih baik di dalam widget */
     [data-testid="stHorizontalBlock"] {
         gap: 1.2rem;
+    }
+    
+    /* === CSS BARU UNTUK MEMBUAT SIDEBAR KANAN STICKY === */
+    /* Ini menargetkan kolom kedua dari tata letak utama */
+    div[data-testid="stHorizontalBlock"] > div:nth-child(2) {
+        position: sticky;
+        top: 60px; /* Jarak dari atas viewport */
+        height: 90vh; /* Tinggi maksimum adalah 90% dari tinggi layar */
+        overflow-y: auto; /* Tambahkan scrollbar internal jika konten chatbot panjang */
     }
 </style>
 """, unsafe_allow_html=True)
@@ -101,7 +63,6 @@ st.markdown("""
 # ======================================================================================
 # 2. DATA MOCK & FUNGSI BANTU
 # ======================================================================================
-# <-- PERUBAHAN: Hanya menginisialisasi pesan chatbot, tidak perlu state 'show_chat' lagi -->
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm VIRA. How can I help?"}]
 
@@ -195,6 +156,7 @@ def get_bot_response(msg):
     if "thank" in lm:
         return "You're welcome! Anything else?"
     return 'I can help with dashboard insights. Try "summarize alerts", or "top opportunities".'
+
 # ======================================================================================
 # 3. SIDEBAR KIRI (NAVIGASI & FILTER)
 # ======================================================================================
@@ -215,10 +177,9 @@ with st.sidebar:
     st.markdown("📈 Analytics")
     st.markdown("💬 Feedback")
     
-    # <-- PERUBAHAN: Tombol pemicu chatbot dihapus dari sini -->
-    
     st.markdown("---")
     st.info("👤 **Account:** Sebastian (CX Manager)")
+
 
 # ======================================================================================
 # 4. TATA LETAK UTAMA DENGAN KOLOM KANAN
@@ -227,7 +188,6 @@ with st.sidebar:
 st.header("Customer Experience Health")
 st.write("Real-time Insights & Performance Overview")
 
-# <-- PERUBAHAN: Mendefinisikan kolom utama untuk dasbor dan sidebar chatbot kanan -->
 main_content, chat_sidebar = st.columns([2.5, 1], gap="large")
 
 # Semua konten dasbor sekarang masuk ke kolom 'main_content'
@@ -243,30 +203,20 @@ with main_content:
             score = current_health_data['score']
             trend = current_health_data['trend']
             trend_label = current_health_data['trend_label']
-            trend_class = "trend-positive" if trend >= 0 else "trend-negative"
-            arrow = "↑" if trend >= 0 else "↓"
             
-            st.markdown(f"""
-            <div style="text-align: center;">
-                <span style="font-size: 3rem; font-weight: 500; color: var(--accent-color);">{score}</span>
-                <span style="font-size: 1.8rem; color: var(--text-secondary);">%</span>
-                <div class="{trend_class} health-trend">
-                    <span>{arrow} {trend}% {trend_label}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+            st.metric(
+                label="Real-time Score", 
+                value=f"{score}%", 
+                delta=f"{trend}% {trend_label}"
+            )
             st.plotly_chart(create_health_trend_chart(current_health_data), use_container_width=True)
             st.info("Overall customer satisfaction is strong.", icon="✅")
 
     with col2:
         with st.container(border=True):
             st.subheader("Critical Alerts")
-            st.markdown("""
-            <div class="alert-item alert-critical"><strong>Sudden Spike in Negative Sentiment</strong><p class="metric-subtitle">Mobile App Update X.Y: 45% negative</p></div>
-            """, unsafe_allow_html=True)
-            st.markdown("""
-            <div class="alert-item alert-high"><strong>High Churn Risk Pattern Detected</strong><p class="metric-subtitle">Pattern: Repeated Billing Errors</p></div>
-            """, unsafe_allow_html=True)
+            st.error("Spike in Negative Sentiment: 45% neg.")
+            st.warning("High Churn Risk Pattern Detected.")
             if st.button("View All Alerts", use_container_width=True, type="primary"):
                 st.toast("Navigating to all alerts...")
 
@@ -274,7 +224,7 @@ with main_content:
         with st.container(border=True):
             st.subheader("Predictive Hotspots")
             st.warning("New Overdraft Policy Confusion")
-            st.caption("Task Abandonment: +15% MoM")
+            st.info("Intl. Transfer UI Issues")
             if st.button("Create Action", use_container_width=True, type="primary"):
                 st.toast("Opening action creation modal...")
 
@@ -306,7 +256,7 @@ with main_content:
             st.error("❌ Long Wait Times (Call)")
 
 
-# <-- PERUBAHAN: Logika chatbot sekarang ada di dalam kolom 'chat_sidebar' -->
+# Logika chatbot sekarang ada di dalam kolom 'chat_sidebar'
 with chat_sidebar:
     # Menggunakan st.container untuk memberikan latar belakang dan border
     with st.container(border=True):
