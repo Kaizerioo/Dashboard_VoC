@@ -86,6 +86,13 @@ st.set_page_config(
 # Custom CSS for enhanced styling (same as before)
 st.markdown("""
 <style>
+    .metric-card {
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    padding: 15px;
+    margin: 10px 0px;
+    background-color: #f9f9f9;
+}
     .stApp {
         background-color: #f5f5f7;
         color: #1d1d1f;
@@ -106,14 +113,14 @@ st.markdown("""
     .stButton>button:hover {
         background-color: #005bb5;
     }
-    .metric-card {
-        background-color: white;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        overflow: hidden; /* Prevent content from overflowing */
-    }
+    # .metric-card {
+    #     background-color: white;
+    #     padding: 15px;
+    #     border-radius: 10px;
+    #     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    #     margin-bottom: 20px;
+    #     overflow: hidden; /* Prevent content from overflowing */
+    # }
     .metric-title {
         font-size: 18px;
         font-weight: bold;
