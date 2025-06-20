@@ -407,32 +407,33 @@ def generate_health_score_data():
 # ==============================================================================
 
 def apply_time_filter(df, time_period):
-    """Apply time-based filtering to the dataframe"""
-    if df.empty or 'Date' not in df.columns:
+    with st.container(border=True):
+        """Apply time-based filtering to the dataframe"""
+        if df.empty or 'Date' not in df.columns:
+            return df
+        
+        today = pd.Timestamp('today').normalize()
+        
+        if time_period == "Today":
+            return df[df['Date'] == today]
+        elif time_period == "This Week":
+            start_of_week = today - pd.to_timedelta(today.dayofweek, unit='D')
+            end_of_week = start_of_week + pd.to_timedelta(6, unit='D')
+            return df[(df['Date'] >= start_of_week) & (df['Date'] <= end_of_week)]
+        elif time_period == "This Month":
+            start_of_month = today.replace(day=1)
+            end_of_month = (start_of_month + pd.DateOffset(months=1)) - pd.DateOffset(days=1)
+            return df[(df['Date'] >= start_of_month) & (df['Date'] <= end_of_month)]
+        elif time_period == "This Quarter":
+            start_of_quarter = today.to_period('Q').start_time
+            end_of_quarter = today.to_period('Q').end_time
+            return df[(df['Date'] >= start_of_quarter) & (df['Date'] <= end_of_quarter)]
+        elif time_period == "This Year":
+            start_of_year = today.replace(month=1, day=1)
+            end_of_year = today.replace(month=12, day=31)
+            return df[(df['Date'] >= start_of_year) & (df['Date'] <= end_of_year)]
+        
         return df
-    
-    today = pd.Timestamp('today').normalize()
-    
-    if time_period == "Today":
-        return df[df['Date'] == today]
-    elif time_period == "This Week":
-        start_of_week = today - pd.to_timedelta(today.dayofweek, unit='D')
-        end_of_week = start_of_week + pd.to_timedelta(6, unit='D')
-        return df[(df['Date'] >= start_of_week) & (df['Date'] <= end_of_week)]
-    elif time_period == "This Month":
-        start_of_month = today.replace(day=1)
-        end_of_month = (start_of_month + pd.DateOffset(months=1)) - pd.DateOffset(days=1)
-        return df[(df['Date'] >= start_of_month) & (df['Date'] <= end_of_month)]
-    elif time_period == "This Quarter":
-        start_of_quarter = today.to_period('Q').start_time
-        end_of_quarter = today.to_period('Q').end_time
-        return df[(df['Date'] >= start_of_quarter) & (df['Date'] <= end_of_quarter)]
-    elif time_period == "This Year":
-        start_of_year = today.replace(month=1, day=1)
-        end_of_year = today.replace(month=12, day=31)
-        return df[(df['Date'] >= start_of_year) & (df['Date'] <= end_of_year)]
-    
-    return df
 
 def apply_product_filter(df, selected_products):
     """Apply product filtering to the dataframe"""
@@ -966,7 +967,6 @@ def render_hotspots_widget():
 
 def render_voice_snapshot(analytics_data, time_period):
     with st.container(border=True):
-       """Render the customer voice snapshot section"""
        st.markdown('<div class="section-header">📊 Customer Voice Snapshot</div>', unsafe_allow_html=True)
     
        col1, col2, col3 = st.columns(3)
@@ -1111,9 +1111,7 @@ def render_opportunity_radar():
                st.success("**Action**: Implement training program", icon="🤝")
        
 def render_vira_chat(dashboard_state):
-   """Render the VIRA chat interface"""
    st.markdown('<div class="section-header">🤖 Chat with VIRA (Your CX Co-pilot)</div>', unsafe_allow_html=True)
-   st.markdown('<div class="content-block">', unsafe_allow_html=True) # Wrap chat in a content block
    
     # Initialize chat history
    if "messages" not in st.session_state:
