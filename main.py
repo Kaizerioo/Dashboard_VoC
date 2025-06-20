@@ -80,21 +80,63 @@ def load_data_from_google_sheets():
 st.set_page_config(
     page_title="Voice of Customer Dashboard",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for enhanced styling (same as before)
+# Custom CSS for enhanced styling including navbar
 st.markdown("""
 <style>
     .stApp {
         background-color: #f5f5f7;
         color: #1d1d1f;
     }
-    .sidebar .sidebar-content {
+    .navbar {
         background-color: #ffffff;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 10px 20px;
+        border-radius: 8px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .navbar-brand {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1d1d1f;
+    }
+    .navbar-menu {
+        display: flex;
+        gap: 20px;
+    }
+    .navbar-menu-item {
+        cursor: pointer;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+    .navbar-menu-item:hover, .navbar-menu-item.active {
+        background-color: #f5f5f7;
+    }
+    .navbar-menu-item.active {
+        color: #007aff;
+        font-weight: bold;
+    }
+    .navbar-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #007aff;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
     }
     .stButton>button {
         background-color: #007aff;
@@ -152,6 +194,40 @@ st.markdown("""
         padding: 10px;
         margin-bottom: 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Hide the default sidebar */
+    [data-testid="stSidebar"] {
+        display: none;
+    }
+
+    /* Dropdown menu styling */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #ffffff;
+        min-width: 180px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 10px 0;
+        z-index: 1000;
+        right: 0;
+    }
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
+    .dropdown-item {
+        padding: 8px 15px;
+        color: #1d1d1f;
+        text-decoration: none;
+        display: block;
+    }
+    .dropdown-item:hover {
+        background-color: #f5f5f7;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -218,7 +294,6 @@ Informasi Dasbor Umum Lainnya (ini adalah contoh, peringatan/hotspot spesifik da
         print(f"LLM API Error: {e}")
         yield error_message
 
-# Generate health score data (remains static for now)
 def generate_health_score_data():
     return {
         "today": {"labels": ["9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM", "9 PM"], "values": [78, 76, 80, 79, 81, 83, 84], "score": 84, "trend": "+2.5%", "trend_positive": True, "trend_label": "vs. yesterday"},
@@ -232,21 +307,41 @@ def generate_health_score_data():
 # --- Load Data ---
 master_df = load_data_from_google_sheets()
 
-# Sidebar (same as before)
-with st.sidebar:
-    st.title("VOCAL")
-    st.markdown("---")
-    st.header("Menu")
-    page = st.selectbox("Navigate", ["Dashboard", "Analytics", "Feedback", "Alerts", "Reports"], key="menu_nav")
-    st.header("Customer Insights")
-    st.selectbox("Insights", ["Sentiment Analysis", "Journey Mapping", "Satisfaction Scores", "Theme Analysis"], key="insights_nav")
-    st.header("Operations")
-    st.selectbox("Operations", ["Real-time Monitoring", "Predictive Analytics", "Performance Metrics", "Action Items"], key="ops_nav")
-    st.header("Configuration")
-    st.selectbox("Config", ["Settings", "User Management", "Security", "Help & Support"], key="config_nav")
-    st.markdown("---")
-    st.markdown("**Sebastian**")
-    st.markdown("CX Manager")
+# Custom Navbar
+def render_navbar():
+    st.markdown("""
+    <div class="navbar">
+        <div class="navbar-brand">VOCAL</div>
+        <div class="navbar-menu">
+            <div class="navbar-menu-item active" onclick="window.location.href='?page=Dashboard'">Dashboard</div>
+            <div class="navbar-menu-item" onclick="window.location.href='?page=Analytics'">Analytics</div>
+            <div class="navbar-menu-item" onclick="window.location.href='?page=Feedback'">Feedback</div>
+            <div class="navbar-menu-item" onclick="window.location.href='?page=Alerts'">Alerts</div>
+            <div class="navbar-menu-item" onclick="window.location.href='?page=Reports'">Reports</div>
+        </div>
+        <div class="navbar-user">
+            <div class="dropdown">
+                <div class="user-avatar">S</div>
+                <div class="dropdown-content">
+                    <div class="dropdown-item">Sebastian</div>
+                    <div class="dropdown-item">CX Manager</div>
+                    <div class="dropdown-item">Settings</div>
+                    <div class="dropdown-item">User Management</div>
+                    <div class="dropdown-item">Security</div>
+                    <div class="dropdown-item">Help & Support</div>
+                    <div class="dropdown-item">Logout</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# Render the navbar
+render_navbar()
+
+# Get page from URL query parameter
+query_params = st.experimental_get_query_params()
+page = query_params.get("page", ["Dashboard"])[0]
 
 # Main content
 if page == "Dashboard":
@@ -434,7 +529,7 @@ if page == "Dashboard":
         intent_data_for_chart = pd.DataFrame({'Intent': ['No Data'], 'Value': [1]})
         live_intent_summary_for_llm = {"Info": "No intent data for current filter."}
 
-    # Volume Data
+     # Volume Data
     if not filtered_df.empty and 'Date' in filtered_df.columns:
         # Group by day for volume trend, regardless of selected period (could be refined)
         volume_over_time = filtered_df.groupby(filtered_df['Date'].dt.date)['Date'].count()
@@ -451,7 +546,6 @@ if page == "Dashboard":
         vol_df_for_chart = pd.DataFrame({'Day': [pd.Timestamp('today').date()], 'Volume': [0]}) # Placeholder
         live_volume_summary_for_llm = "Volume data cannot be trended (Date column missing or no data)."
         _volume_data_points = [0, 1]
-
 
     # Customer Voice Snapshot
     st.markdown("## Customer Voice Snapshot")
@@ -550,15 +644,15 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
     with col1:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("""**🎉 Delightful: Instant Card Activation**<br>- 75 delight mentions this week (Sentiment: +0.95)<br>- Keywords: "amazing", "so easy", "instant"<br>- Action: Amplify in marketing? Benchmark?""")
+        st.markdown("""**🎉 Delightful: Instant Card Activation**<br>- 75 delight mentions this week (Sentiment: +0.95)<br>- Keywords: "amazing", "so easy", "instant"<br>- Action: Amplify in marketing? Benchmark?""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with col2:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("""**💰 Cross-Sell: Mortgage Inquiries +15%**<br>- Mortgage info seeking: +15% WoW<br>- Related: Savings, Financial Planning<br>- Action: Target with relevant mortgage info?""")
+        st.markdown("""**💰 Cross-Sell: Mortgage Inquiries +15%**<br>- Mortgage info seeking: +15% WoW<br>- Related: Savings, Financial Planning<br>- Action: Target with relevant mortgage info?""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     with col3:
         st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("""**⭐ Service Excellence: Complex Issues**<br>- 25 positive mentions for complex issue resolution<br>- Agents: A, B, C praised<br>- Action: Identify best practices? Recognize agents?""")
+        st.markdown("""**⭐ Service Excellence: Complex Issues**<br>- 25 positive mentions for complex issue resolution<br>- Agents: A, B, C praised<br>- Action: Identify best practices? Recognize agents?""", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     # VIRA Chat Assistant
@@ -606,4 +700,4 @@ if page == "Dashboard":
 
 else:
     st.markdown(f"## {page}")
-    st.write("Bagian ini sedang dalam pengembangan. Silakan pilih 'Dashboard' dari sidebar untuk melihat dasbor utama.")
+    st.write("Bagian ini sedang dalam pengembangan. Silakan pilih 'Dashboard' dari navbar untuk melihat dasbor utama.")
