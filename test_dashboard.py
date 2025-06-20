@@ -95,7 +95,6 @@ st.markdown("""
     [data-testid="stHorizontalBlock"] {
         gap: 1.2rem;
     }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -104,6 +103,10 @@ st.markdown("""
 # 2. DATA MOCK & FUNGSI BANTU
 # Ini mereplikasi data yang ditemukan di skrip JS
 # ======================================================================================
+if "show_chat" not in st.session_state:
+    st.session_state.show_chat = False
+if "messages" not in st.session_state:
+    st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm VIRA. How can I help?"}]
 
 # Data untuk Health Score Widget
 health_score_data = {
@@ -115,7 +118,6 @@ health_score_data = {
     "All Periods": {"score": 83, "trend": 10.4, "trend_label": "over 5 years", "labels": ["2020", "2021", "2022", "2023", "2024"], "values": [71, 75, 78, 80, 83]}
 }
 
-# Fungsi untuk membuat grafik Plotly
 def create_health_trend_chart(data):
     fig = go.Figure()
     fig.add_trace(go.Scatter(
@@ -197,6 +199,7 @@ def get_bot_response(msg):
         return "You're welcome! Anything else?"
     return 'I can help with dashboard insights. Try "summarize alerts", or "top opportunities".'
 
+
 # ======================================================================================
 # 3. SIDEBAR
 # Mereplikasi filter dan navigasi
@@ -205,33 +208,28 @@ def get_bot_response(msg):
 with st.sidebar:
     st.markdown("## VOCAL")
     st.markdown("---")
-
-    # Time Filter
-    time_filter = st.selectbox(
-        "Time",
-        options=["This Month", "Today", "This Week", "This Quarter", "This Year", "All Periods"],
-        index=0
-    )
-
-    # Product Filter
+    st.info("👤 **Account:** Sebastian (CX Manager)")
+    st.markdown("---")
+    # Filter
+    time_filter = st.selectbox("Time", options=["This Month", "Today", "This Week", "This Quarter", "This Year", "All Periods"], index=0)
     product_options = ["myBCA", "BCA Mobile", "KPR", "KKB", "KSM", "Investasi", "Asuransi", "Kartu Kredit"]
     product_filter = st.multiselect("Product", options=product_options, default=["myBCA", "BCA Mobile"])
-
-    # Channel Filter
     channel_options = ["Social Media", "Call Center", "WhatsApp", "Webchat", "VIRA", "E-mail", "Survey Gallup"]
     channel_filter = st.multiselect("Channel", options=channel_options, default=["Social Media"])
     
     st.markdown("---")
     st.markdown("### Menu")
- 
-    # Menggunakan st.markdown untuk meniru tautan tanpa fungsionalitas navigasi
-    # Ini akan mempertahankan tampilan visual tanpa menyebabkan error.
     st.markdown("📊 **Dashboard**")
     st.markdown("📈 Analytics")
     st.markdown("💬 Feedback")
     
     st.markdown("---")
-    st.info("👤 **Account:** Sebastian (CX Manager)")
+    # <-- PERUBAHAN: Tombol untuk membuka dialog chatbot -->
+    if st.button("🤖 Open AI Assistant", use_container_width=True):
+        st.session_state.show_chat = True
+        
+
+
 
 
 # ======================================================================================
@@ -350,26 +348,28 @@ with st.container(border=True):
 # 5. CHATBOT
 # Mereplikasi fungsionalitas chatbot menggunakan st.chat
 # ======================================================================================
-st.markdown("---")
-st.subheader("🤖 Ask VIRA, your AI Assistant")
+if st.session_state.show_chat:
+    with st.dialog("🤖 VIRA, your AI Assistant", width="large"):
+        # Tampilkan riwayat obrolan
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.write(msg["content"])
 
-if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm VIRA. How can I help with the dashboard today?"}]
+        # Input dari pengguna
+        if prompt := st.chat_input("Ask about insights, alerts..."):
+            # Tambahkan pesan pengguna ke riwayat
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            with st.chat_message("user"):
+                st.write(prompt)
 
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.write(msg["content"])
-
-if prompt := st.chat_input("Ask about insights, alerts..."):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.write(prompt)
-
-    # Menampilkan pesan loading dan mendapatkan respons
-    with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            response = get_bot_response(prompt)
-            st.write(response)
-    st.session_state.messages.append({"role": "assistant", "content": response})
-
+            # Dapatkan dan tampilkan respons bot
+            with st.chat_message("assistant"):
+                with st.spinner("Thinking..."):
+                    response = get_bot_response(prompt)
+                    st.write(response)
+            # Tambahkan respons bot ke riwayat
+            st.session_state.messages.append({"role": "assistant", "content": response})
+            
+            # Pemicu untuk menjalankan ulang agar pesan baru muncul segera
+            st.rerun()
 
