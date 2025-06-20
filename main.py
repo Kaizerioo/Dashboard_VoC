@@ -347,7 +347,6 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
         st.markdown("### Customer Health Score")
         health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
         score_col1, score_col2 = st.columns([1, 2])
@@ -373,7 +372,6 @@ if page == "Dashboard":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col2: # Critical Alerts (static content)
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
         st.markdown("### Critical Alerts")
         alert_view = st.radio("View", ["Critical", "High", "Medium", "All"], horizontal=True, key="alert_view")
         st.markdown("""
@@ -391,7 +389,6 @@ if page == "Dashboard":
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col3: # Predictive Hotspots (static content)
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
         st.markdown("### Predictive Hotspots")
         hotspot_view = st.radio("View", ["Emerging", "Trending", "Predicted"], horizontal=True, key="hotspot_view")
         st.markdown("""
