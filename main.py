@@ -112,6 +112,7 @@ st.markdown("""
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         margin-bottom: 20px;
+        overflow: hidden; /* Prevent content from overflowing */
     }
     .metric-title {
         font-size: 18px;
@@ -131,6 +132,7 @@ st.markdown("""
         color: #ff3b30;
         font-size: 14px;
     }
+    /* Fix for radio buttons */
     .stRadio > div {
         display: flex;
         gap: 10px;
@@ -152,6 +154,38 @@ st.markdown("""
         padding: 10px;
         margin-bottom: 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    /* Fix for plotly charts inside containers */
+    .metric-card .js-plotly-plot, .metric-card .plotly, .metric-card .plot-container {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    /* Ensure content stays within container */
+    .metric-card div {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+    /* Improve layout for stacked elements */
+    .metric-card > div > div {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+    /* Fix for markdown content */
+    .metric-card p, .metric-card ul, .metric-card blockquote {
+        margin: 0.5em 0;
+        padding: 0;
+        max-width: 100%;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+    }
+    /* Fix for blockquotes in cards */
+    .metric-card blockquote {
+        border-left: 3px solid #e5e5ea;
+        padding-left: 10px;
+        margin-left: 0;
+        color: #555;
+        font-style: italic;
     }
 </style>
 """, unsafe_allow_html=True)
