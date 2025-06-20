@@ -847,8 +847,7 @@ def render_filters(master_df):
 def render_health_score_widget(health_data):
     with st.container(border=True):
         """Render the health score widget"""
-        # INI DIA PEMBUKA KOTAKNYA
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True) # Open metric-card
+
     
         st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Card title
     
@@ -881,9 +880,7 @@ def render_health_score_widget(health_data):
             st.warning("⚠️ Moderate satisfaction. Consider addressing key issues.", icon="🔍")
         else:
             st.error("🚨 Low satisfaction detected. Immediate action recommended.", icon="🔥")
-    
-        # DAN INI DIA PENUTUP KOTAKNYA
-        st.markdown('</div>', unsafe_allow_html=True) # Close metric-card
+
 
 def render_alerts_widget():
    """Render the critical alerts widget"""
