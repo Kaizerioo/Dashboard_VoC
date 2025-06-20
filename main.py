@@ -190,6 +190,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+div.stContainer {
+    border: 2px solid #4CAF50;
+    border-radius: 5px;
+    padding: 10px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # --- NVIDIA API Client Initialization ---
 SYSTEM_PROMPT_VIRA = """
 Anda adalah VIRA, seorang konsultan virtual untuk Bank BCA.
@@ -381,16 +391,16 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-            st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-        st.markdown("### Customer Health Score")
-        health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
-        score_col1, score_col2 = st.columns([1, 2])
-        with score_col1:
-            st.markdown(f'<div class="metric-value">{current_health_data["score"]}%</div>', unsafe_allow_html=True)
-        with score_col2:
-            trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
-            trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
-            st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
+            with st.container():
+                st.markdown("### Customer Health Score")
+                health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
+                score_col1, score_col2 = st.columns([1, 2])
+                with score_col1:
+                    st.markdown(f'<div class="metric-value">{current_health_data["score"]}%</div>', unsafe_allow_html=True)
+                with score_col2:
+                    trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
+                    trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
+                    st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
     
         fig_health = go.Figure()
         fig_health.add_trace(go.Scatter(
