@@ -126,58 +126,59 @@ def load_data_from_google_sheets():
     """
     Fetches and preprocesses data from a specified Google Sheet.
     Uses Streamlit secrets for authentication. Caches the data for 10 minutes.
-
+ 
     Returns:
         pd.DataFrame: A DataFrame containing the preprocessed data, or an empty
                       DataFrame if an error occurs.
     """
     try:
-        [span_0](start_span)gcp_creds_table = st.secrets["gcp_service_account_credentials"] #[span_0](end_span)
+        # The invalid syntax was on the line below. It has been removed.
+        gcp_creds_table = st.secrets["gcp_service_account_credentials"]
         creds_info = {
-            [span_1](start_span)"type": gcp_creds_table["type"], #[span_1](end_span)
-            [span_2](start_span)"project_id": gcp_creds_table["project_id"], #[span_2](end_span)
-            [span_3](start_span)"private_key_id": gcp_creds_table["private_key_id"], #[span_3](end_span)
-            [span_4](start_span)"private_key": gcp_creds_table["private_key"].replace('\\n', '\n'), #[span_4](end_span)
-            [span_5](start_span)"client_email": gcp_creds_table["client_email"], #[span_5](end_span)
-            [span_6](start_span)"client_id": gcp_creds_table["client_id"], #[span_6](end_span)
-            [span_7](start_span)"auth_uri": gcp_creds_table["auth_uri"], #[span_7](end_span)
-            [span_8](start_span)"token_uri": gcp_creds_table["token_uri"], #[span_8](end_span)
-            [span_9](start_span)"auth_provider_x509_cert_url": gcp_creds_table["auth_provider_x509_cert_url"], #[span_9](end_span)
-            [span_10](start_span)"client_x509_cert_url": gcp_creds_table["client_x509_cert_url"], #[span_10](end_span)
-            [span_11](start_span)"universe_domain": gcp_creds_table["universe_domain"] #[span_11](end_span)
+            "type": gcp_creds_table["type"],
+            "project_id": gcp_creds_table["project_id"],
+            "private_key_id": gcp_creds_table["private_key_id"],
+            "private_key": gcp_creds_table["private_key"].replace('\\n', '\n'),
+            "client_email": gcp_creds_table["client_email"],
+            "client_id": gcp_creds_table["client_id"],
+            "auth_uri": gcp_creds_table["auth_uri"],
+            "token_uri": gcp_creds_table["token_uri"],
+            "auth_provider_x509_cert_url": gcp_creds_table["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": gcp_creds_table["client_x509_cert_url"],
+            "universe_domain": gcp_creds_table["universe_domain"]
         }
-        [span_12](start_span)creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES) #[span_12](end_span)
-        [span_13](start_span)service = build('sheets', 'v4', credentials=creds) #[span_13](end_span)
-        [span_14](start_span)result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute() #[span_14](end_span)
-        [span_15](start_span)values = result.get('values', []) #[span_15](end_span)
-
-        [span_16](start_span)if not values: #[span_16](end_span)
-            [span_17](start_span)st.error("No data found in the Google Sheet.") #[span_17](end_span)
-            [span_18](start_span)return pd.DataFrame() #[span_18](end_span)
-
-        [span_19](start_span)df = pd.DataFrame(values[1:], columns=values[0]) #[span_19](end_span)
+        creds = service_account.Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+        service = build('sheets', 'v4', credentials=creds)
+        result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
+        values = result.get('values', [])
+ 
+        if not values:
+            st.error("No data found in the Google Sheet.")
+            return pd.DataFrame()
+ 
+        df = pd.DataFrame(values[1:], columns=values[0])
         # Data Cleaning and Type Conversion
-        [span_20](start_span)if 'Date' in df.columns: #[span_20](end_span)
-            [span_21](start_span)df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce') #[span_21](end_span)
-            [span_22](start_span)df.dropna(subset=['Date'], inplace=True) #[span_22](end_span)
+        if 'Date' in df.columns:
+            df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
+            df.dropna(subset=['Date'], inplace=True)
         else:
-            [span_23](start_span)st.warning("Column 'Date' not found. Time filtering will not work correctly.") #[span_23](end_span)
-        [span_24](start_span)if 'Product' in df.columns: #[span_24](end_span)
-            [span_25](start_span)df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_") #[span_25](end_span)
-        [span_26](start_span)if 'Channel' in df.columns: #[span_26](end_span)
-            [span_27](start_span)df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_") #[span_27](end_span)
-        [span_28](start_span)if 'Sentimen' in df.columns: #[span_28](end_span)
-            [span_29](start_span)df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize() #[span_29](end_span)
-        [span_30](start_span)if 'Intent' in df.columns: #[span_30](end_span)
-            [span_31](start_span)df['Intent'] = df['Intent'].astype(str) #[span_31](end_span)
-        [span_32](start_span)return df #[span_32](end_span)
-
-    [span_33](start_span)except KeyError as e: #[span_33](end_span)
-        [span_34](start_span)st.error(f"Missing secret: {e}. Please ensure 'gcp_service_account_credentials' is set in your Streamlit secrets.") #[span_34](end_span)
-        [span_35](start_span)return pd.DataFrame() #[span_35](end_span)
+            st.warning("Column 'Date' not found. Time filtering will not work correctly.")
+        if 'Product' in df.columns:
+            df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_")
+        if 'Channel' in df.columns:
+            df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_")
+        if 'Sentimen' in df.columns:
+            df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize()
+        if 'Intent' in df.columns:
+            df['Intent'] = df['Intent'].astype(str)
+        return df
+ 
+    except KeyError as e:
+        st.error(f"Missing secret: {e}. Please ensure 'gcp_service_account_credentials' is set in your Streamlit secrets.")
+        return pd.DataFrame()
     except Exception as e:
-        [span_36](start_span)st.error(f"An error occurred while loading data from Google Sheets: {e}") #[span_36](end_span)
-        [span_37](start_span)return pd.DataFrame() #[span_37](end_span)
+        st.error(f"An error occurred while loading data from Google Sheets: {e}")
+        return pd.DataFrame()
 
 @st.cache_data
 def generate_health_score_data():
