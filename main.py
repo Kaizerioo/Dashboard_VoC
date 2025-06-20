@@ -86,26 +86,6 @@ st.set_page_config(
 # Custom CSS for enhanced styling (same as before)
 st.markdown("""
 <style>
-    .metric-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    padding: 15px;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-.metric-value {
-    font-size: 36px;
-    font-weight: bold;
-    color: #333;
-}
-.metric-trend-positive {
-    color: #34c759;
-    font-weight: 500;
-}
-.metric-trend-negative {
-    color: #ff3b30;
-    font-weight: 500;
-}
     .stApp {
         background-color: #f5f5f7;
         color: #1d1d1f;
@@ -126,14 +106,13 @@ st.markdown("""
     .stButton>button:hover {
         background-color: #005bb5;
     }
-    # .metric-card {
-    #     background-color: white;
-    #     padding: 15px;
-    #     border-radius: 10px;
-    #     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    #     margin-bottom: 20px;
-    #     overflow: hidden; /* Prevent content from overflowing */
-    # }
+    .metric-card {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
     .metric-title {
         font-size: 18px;
         font-weight: bold;
@@ -152,7 +131,6 @@ st.markdown("""
         color: #ff3b30;
         font-size: 14px;
     }
-    /* Fix for radio buttons */
     .stRadio > div {
         display: flex;
         gap: 10px;
@@ -175,45 +153,6 @@ st.markdown("""
         margin-bottom: 10px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    /* Fix for plotly charts inside containers */
-    .metric-card .js-plotly-plot, .metric-card .plotly, .metric-card .plot-container {
-        max-width: 100%;
-        max-height: 100%;
-    }
-    /* Ensure content stays within container */
-    .metric-card div {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    /* Improve layout for stacked elements */
-    .metric-card > div > div {
-        max-width: 100%;
-        overflow-x: auto;
-    }
-    /* Fix for markdown content */
-    .metric-card p, .metric-card ul, .metric-card blockquote {
-        margin: 0.5em 0;
-        padding: 0;
-        max-width: 100%;
-        overflow-wrap: break-word;
-        word-wrap: break-word;
-    }
-    /* Fix for blockquotes in cards */
-    .metric-card blockquote {
-        border-left: 3px solid #e5e5ea;
-        padding-left: 10px;
-        margin-left: 0;
-        color: #555;
-        font-style: italic;
-    }
-
-    .bordered {
-    border: 2px solid #4CAF50;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 10px 0px;
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -407,27 +346,34 @@ if page == "Dashboard":
     st.markdown("## Dashboard Widgets")
     col1, col2, col3 = st.columns(3)
 
-    
-    
-        # Content inside the card
     with col1:
-        with st.container(border=True):
-            st.subheader("Customer Health Score")
-            current_health_data = health_score_data[time_filter]
-            score = current_health_data['score']
-            trend = current_health_data['trend']
-            trend_label = current_health_data['trend_label']
-            
-            st.metric(
-                label="Real-time Score", 
-                value=f"{score}%", 
-                delta=f"{trend}% {trend_label}"
-            )
-            st.plotly_chart(create_health_trend_chart(current_health_data), use_container_width=True)
-            st.info("Overall customer satisfaction is strong.", icon="✅")
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        st.markdown("### Customer Health Score")
+        health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
+        score_col1, score_col2 = st.columns([1, 2])
+        with score_col1:
+            st.markdown(f'<div class="metric-value">{current_health_data["score"]}%</div>', unsafe_allow_html=True)
+        with score_col2:
+            trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
+            trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
+            st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
+
+        fig_health = go.Figure()
+        fig_health.add_trace(go.Scatter(
+            x=current_health_data["labels"], y=current_health_data["values"], mode='lines', fill='tozeroy',
+            fillcolor='rgba(52,199,89,0.18)', line=dict(color='#34c759', width=2), name='Health Score'
+        ))
+        fig_health.update_layout(
+            height=150, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            xaxis=dict(showgrid=False, showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9)),
+            yaxis=dict(showgrid=True, gridcolor='#e5e5ea', showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9), range=[min(current_health_data["values"]) - 2, max(current_health_data["values"]) + 2])
+        )
+        st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
+        st.markdown("Overall customer satisfaction is strong, showing a positive trend this month.") # Example text
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2: # Critical Alerts (static content)
-        st.markdown('<div class="bordered">', unsafe_allow_html=True)
+        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
         st.markdown("### Critical Alerts")
         alert_view = st.radio("View", ["Critical", "High", "Medium", "All"], horizontal=True, key="alert_view")
         st.markdown("""
