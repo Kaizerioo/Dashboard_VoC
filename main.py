@@ -86,45 +86,6 @@ st.set_page_config(
 # Custom CSS for enhanced styling (same as before)
 st.markdown("""
 <style>
-        h3 {
-            font-weight: 600;
-            color: #31333F;
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-        }
-        .radio-group {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        .radio-group label {
-            cursor: pointer;
-            padding: 5px 10px;
-            border: 1px solid #E0E0E0;
-            border-radius: 5px;
-            font-size: 0.9em;
-        }
-        .radio-group input[type="radio"] {
-            display: none; /* Hide default radio button */
-        }
-        .radio-group input[type="radio"]:checked + label {
-            background-color: #F0F2F6; /* A light grey for selected */
-            border-color: #09ABF5; /* Streamlit's primary color */
-            color: #09ABF5;
-        }
-        .columns-container {
-            display: flex;
-            gap: 20px; /* Space between columns */
-            margin-bottom: 20px;
-            align-items: center; /* Vertically align items if they have different heights */
-        }
-        .column1 {
-            flex: 1; /* Takes 1 part of the space */
-        }
-        .column2 {
-            flex: 2; /* Takes 2 parts of the space */
-        }
     .stApp {
         background-color: #f5f5f7;
         color: #1d1d1f;
