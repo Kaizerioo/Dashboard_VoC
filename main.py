@@ -126,13 +126,12 @@ def load_data_from_google_sheets():
     """
     Fetches and preprocesses data from a specified Google Sheet.
     Uses Streamlit secrets for authentication. Caches the data for 10 minutes.
- 
+
     Returns:
         pd.DataFrame: A DataFrame containing the preprocessed data, or an empty
                       DataFrame if an error occurs.
     """
     try:
-        # The invalid syntax was on the line below. It has been removed.
         gcp_creds_table = st.secrets["gcp_service_account_credentials"]
         creds_info = {
             "type": gcp_creds_table["type"],
@@ -151,28 +150,28 @@ def load_data_from_google_sheets():
         service = build('sheets', 'v4', credentials=creds)
         result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
         values = result.get('values', [])
- 
+
         if not values:
             st.error("No data found in the Google Sheet.")
             return pd.DataFrame()
- 
-        df = pd.DataFrame(values[1:], columns=values[0])
+
+        [span_25](start_span)df = pd.DataFrame(values[1:], columns=values[0])[span_25](end_span)
         # Data Cleaning and Type Conversion
         if 'Date' in df.columns:
             df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
             df.dropna(subset=['Date'], inplace=True)
         else:
-            st.warning("Column 'Date' not found. Time filtering will not work correctly.")
+            [span_26](start_span)st.warning("Column 'Date' not found. Time filtering will not work correctly.")[span_26](end_span)
         if 'Product' in df.columns:
-            df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_")
+            [span_27](start_span)df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_")[span_27](end_span)
         if 'Channel' in df.columns:
-            df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_")
+            [span_28](start_span)df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_")[span_28](end_span)
         if 'Sentimen' in df.columns:
-            df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize()
+            [span_29](start_span)df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize()[span_29](end_span)
         if 'Intent' in df.columns:
             df['Intent'] = df['Intent'].astype(str)
         return df
- 
+
     except KeyError as e:
         st.error(f"Missing secret: {e}. Please ensure 'gcp_service_account_credentials' is set in your Streamlit secrets.")
         return pd.DataFrame()
@@ -184,11 +183,11 @@ def load_data_from_google_sheets():
 def generate_health_score_data():
     """Generates static sample data for the Customer Health Score."""
     return {
-        [span_38](start_span)"today": {"labels": ["9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM", "9 PM"], "values": [78, 76, 80, 79, 81, 83, 84], "score": 84, "trend": "+2.5%", "trend_positive": True, "trend_label": "vs. yesterday"}, [span_38](end_span)
-        [span_39](start_span)"week": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "values": [79, 78, 80, 81, 83, 84, 85], "score": 85, "trend": "+1.8%", "trend_positive": True, "trend_label": "vs. last week"}, [span_39](end_span)
-        [span_40](start_span)"month": {"labels": ["Week 1", "Week 2", "Week 3", "Week 4"], "values": [79, 80, 81, 82], "score": 82, "trend": "+1.5%", "trend_positive": True, "trend_label": "vs. last month"}, [span_40](end_span)
-        [span_41](start_span)"quarter": {"labels": ["Jan", "Feb", "Mar"], "values": [76, 79, 83], "score": 83, "trend": "+3.2%", "trend_positive": True, "trend_label": "vs. last quarter"}, [span_41](end_span)
-        [span_42](start_span)"year": {"labels": ["Q1", "Q2", "Q3", "Q4"], "values": [75, 77, 80, 84], "score": 84, "trend": "+4.1%", "trend_positive": True, "trend_label": "vs. last year"}, [span_42](end_span)
+        "today": {"labels": ["9 AM", "11 AM", "1 PM", "3 PM", "5 PM", "7 PM", "9 PM"], "values": [78, 76, 80, 79, 81, 83, 84], "score": 84, "trend": "+2.5%", "trend_positive": True, "trend_label": "vs. yesterday"},
+        "week": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], "values": [79, 78, 80, 81, 83, 84, 85], "score": 85, "trend": "+1.8%", "trend_positive": True, "trend_label": "vs. last week"},
+        "month": {"labels": ["Week 1", "Week 2", "Week 3", "Week 4"], "values": [79, 80, 81, 82], "score": 82, "trend": "+1.5%", "trend_positive": True, "trend_label": "vs. last month"},
+        "quarter": {"labels": ["Jan", "Feb", "Mar"], "values": [76, 79, 83], "score": 83, "trend": "+3.2%", "trend_positive": True, "trend_label": "vs. last quarter"},
+        "year": {"labels": ["Q1", "Q2", "Q3", "Q4"], "values": [75, 77, 80, 84], "score": 84, "trend": "+4.1%", "trend_positive": True, "trend_label": "vs. last year"},
         "all": {"labels": ["2019", "2020", "2021", "2022", "2023", "2024"], "values": [73, 71, 75, 78, 80, 83], "score": 83, "trend": "+10.4%", "trend_positive": True, "trend_label": "over 5 years"},
     }
 
