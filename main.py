@@ -40,71 +40,6 @@ def apply_custom_css():
     """Apply custom CSS for a professional, simple, and appealing UI/UX"""
     st.markdown("""
     <style>
-        .metric-card-container {
-    /* Tidak perlu style di sini, kita targetkan anaknya */
-}
-
-        /* Ini menargetkan div aktual yang dibuat oleh st.container() di dalam .metric-card-container */
-        .metric-card-container > div:first-child {
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            background-color: #ffffff; /* Latar belakang putih untuk kartu */
-            margin-bottom: 25px; /* Jarak antar kartu */
-            border: 1px solid #e0e0e0; /* Border halus */
-        }
-        
-        /* Style untuk judul kartu di dalam kontainer yang ditata */
-        .metric-card-container > div:first-child h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #1E88E5; /* Warna biru yang bagus untuk judul */
-            font-size: 1.5em; /* Ukuran font judul */
-            border-bottom: 1px solid #eee; /* Garis bawah halus untuk judul */
-            padding-bottom: 10px;
-        }
-        
-        .metric-value {
-            font-size: 3em; /* Skor lebih besar */
-            font-weight: 700; /* Bold */
-            color: #2c3e50; /* Warna gelap untuk skor */
-            line-height: 1; /* Atur line-height agar pas */
-            margin-bottom: 5px; /* Sedikit jarak di bawah skor */
-            text-align: center; /* Pusatkan skor jika di kolomnya sendiri */
-        }
-        
-        .metric-trend-container {
-            text-align: left; /* default, sesuaikan jika perlu */
-            padding-top: 10px; /* Beri sedikit ruang agar sejajar dengan skor */
-        }
-        
-        .metric-trend-positive {
-            color: #27ae60; /* Hijau untuk tren positif */
-            font-weight: bold;
-        }
-        
-        .metric-trend-negative {
-            color: #c0392b; /* Merah untuk tren negatif */
-            font-weight: bold;
-        }
-        
-        /* Style spesifik untuk nilai tren dan labelnya */
-        .trend-value-style {
-            font-size: 1.2em; /* Ukuran font untuk ikon dan nilai tren */
-        }
-        .trend-label-style {
-            font-size: 0.8em;
-            color: #7f8c8d; /* Warna abu-abu untuk label tren */
-            display: block; /* Pastikan label di baris baru */
-            margin-top: 2px;
-        }
-        
-        /* Pastikan chart plotly tidak meluap dan punya margin */
-        .metric-card-container > div:first-child .stPlotlyChart {
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-
         /* Main App Styling */
         .stApp {
             background-color: #f0f2f5; /* Light grey background */
@@ -910,36 +845,32 @@ def render_filters(master_df):
     return time_period, selected_products, selected_channels
 
 def render_health_score_widget(health_data):
-   st.markdown('<div class="metric-card-container">', unsafe_allow_html=True)
+    """Render the health score widget"""
+    # INI DIA PEMBUKA KOTAKNYA
+    st.markdown('<div class="metric-card">', unsafe_allow_html=True) # Open metric-card
 
-# Gunakan st.container(). Semua yang ada di dalam 'with' ini akan
-# berada di dalam div yang dihasilkan oleh st.container().
-# Div ini adalah yang kita targetkan dengan CSS: .metric-card-container > div:first-child
-with st.container():
-    st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Judul Kartu
+    st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Card title
 
-    # Tampilkan skor dan tren dengan lebih menonjol
-    col_score, col_trend_text = st.columns([2, 3]) # Rasio kolom bisa disesuaikan
-
+    # Display score and trend more prominently
+    col_score, col_trend_text = st.columns([2,3])
     with col_score:
         st.markdown(f'<div class="metric-value">{health_data["score"]}%</div>', unsafe_allow_html=True)
 
     with col_trend_text:
         trend_icon = "📈" if health_data["trend_positive"] else "📉"
         trend_class = "metric-trend-positive" if health_data["trend_positive"] else "metric-trend-negative"
-        # Menggunakan kelas berbeda untuk styling bagian teks tren
         st.markdown(f'''
             <div class="metric-trend-container">
-                <span class="{trend_class} trend-value-style">{trend_icon} {health_data["trend"]}</span>
-                <span class="trend-label-style">{health_data["trend_label"]}</span>
+                <span class="{trend_class}">{trend_icon} {health_data["trend"]}</span><br>
+                <span style="font-size:0.8em; color: #666;">{health_data["trend_label"]}</span>
             </div>
         ''', unsafe_allow_html=True)
 
-    # Grafik skor kesehatan
+    # Health score chart
     fig_health = create_health_score_chart(health_data)
     st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
 
-    # Interpretasi skor kesehatan
+    # Health score interpretation
     score = health_data["score"]
     if score >= 80:
         st.success("🎉 Excellent customer satisfaction! Keep up the great work.", icon="✅")
@@ -950,15 +881,8 @@ with st.container():
     else:
         st.error("🚨 Low satisfaction detected. Immediate action recommended.", icon="🔥")
 
-# DAN INI DIA PENUTUP KOTAKNYA (Menutup div pembungkus luar)
-st.markdown('</div>', unsafe_allow_html=True)
-
-# Anda bisa membuat kartu lain dengan pola yang sama
-st.markdown('<div class="metric-card-container">', unsafe_allow_html=True)
-with st.container():
-    st.markdown("<h3>📊 Another Metric</h3>", unsafe_allow_html=True)
-    st.write("Content for another card...")
-st.markdown('</div>', unsafe_allow_html=True)
+    # DAN INI DIA PENUTUP KOTAKNYA
+    st.markdown('</div>', unsafe_allow_html=True) # Close metric-card
 
 def render_alerts_widget():
    """Render the critical alerts widget"""
