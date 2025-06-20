@@ -2253,7 +2253,8 @@ html_string = """
 
         const healthCtx = document
           .getElementById("healthTrendChart")
-          .getContext("2d");
+          ?.getContext("2d");
+        if (!healthCtx) return; // Pastikan elemen canvas ada
         const healthFillGrad = healthCtx.createLinearGradient(
           0,
           0,
@@ -2311,7 +2312,8 @@ html_string = """
 
         const sentimentCtx = document
           .getElementById("sentimentChart")
-          .getContext("2d");
+          ?.getContext("2d");
+        if (!sentimentCtx) return;
         sentimentChartInstance = new Chart(sentimentCtx, {
           type: "doughnut",
           data: {
@@ -2355,7 +2357,8 @@ html_string = """
 
         const intentCtx = document
           .getElementById("intentChart")
-          .getContext("2d");
+          ?.getContext("2d");
+        if (!intentCtx) return;
         intentChartInstance = new Chart(intentCtx, {
           type: "bar",
           data: {
@@ -2395,7 +2398,8 @@ html_string = """
 
         const volumeCtx = document
           .getElementById("volumeChart")
-          .getContext("2d");
+          ?.getContext("2d");
+        if (!volumeCtx) return;
         const volFillGrad = volumeCtx.createLinearGradient(
           0,
           0,
@@ -2450,7 +2454,7 @@ html_string = """
       }
       window.addEventListener("resize", () => {
         if (window.innerWidth > 1024)
-          document.querySelector(".sidebar-overlay").classList.remove("active");
+          document.querySelector(".sidebar-overlay")?.classList.remove("active");
       });
       document.addEventListener("DOMContentLoaded", function () {
         // Get all radio buttons in the time filter dropdown
@@ -2490,23 +2494,63 @@ html_string = """
 
               // Close the dropdown after selection
               const panel = this.closest(".dropdown-panel");
-              panel.classList.remove("open");
-              panel.previousElementSibling.setAttribute(
-                "aria-expanded",
-                "false"
-              );
-
+              if (panel) {
+                  panel.classList.remove("open");
+                  const trigger = panel.previousElementSibling;
+                  if (trigger) {
+                      trigger.setAttribute("aria-expanded", "false");
+                  }
+              }
               // Apply filters
               collectAndApplyGlobalFilters();
             }
           });
         });
+        // Pastikan elemen-elemen DOM ada sebelum memanggil fungsi Chart
+        if (document.getElementById('healthTrendChart') &&
+            document.getElementById('sentimentChart') &&
+            document.getElementById('intentChart') &&
+            document.getElementById('volumeChart')) {
+            collectAndApplyGlobalFilters(); // Panggil setelah DOM siap dan elemen ada
+        } else {
+            // Jika elemen tidak ditemukan, coba panggil setelah delay singkat
+            // atau pastikan script ini dieksekusi setelah seluruh DOM dimuat
+            // Ini adalah fallback jika event DOMContentLoaded tidak cukup
+            console.warn("Satu atau lebih elemen canvas tidak ditemukan saat DOMContentLoaded. Mencoba inisialisasi lagi setelah delay.");
+            setTimeout(() => {
+                 if (document.getElementById('healthTrendChart') &&
+                    document.getElementById('sentimentChart') &&
+                    document.getElementById('intentChart') &&
+                    document.getElementById('volumeChart')) {
+                    collectAndApplyGlobalFilters();
+                } else {
+                    console.error("Elemen canvas masih tidak ditemukan. Chart tidak dapat diinisialisasi.");
+                }
+            }, 500);
+        }
       });
     </script>
   </body>
 </html>
-
 """
 
-st.html(html_string, height=300, scrolling=True) # scrolling=True jika kontennya panjang
+# Mengatur layout halaman menjadi lebar (opsional, tapi sering berguna untuk dashboard)
+st.set_page_config(layout="wide")
 
+st.title("Dashboard HTML Disematkan")
+
+# Menggunakan st.html untuk menyematkan dashboard Anda
+# Sesuaikan 'height' agar sesuai dengan konten dashboard.
+# 'width=None' akan membuat iframe responsif terhadap lebar kontainer Streamlit.
+# 'scrolling=True' memungkinkan pengguna untuk menggulir jika konten lebih tinggi dari iframe.
+st.html(html_string, height=1000, width=None, scrolling=True)
+
+st.sidebar.info(
+    """
+    Ini adalah demo penyematan dashboard HTML kompleks Anda ke dalam Streamlit
+    menggunakan `st.html()`.
+
+    Dengan metode ini, JavaScript dan CSS di dalam HTML Anda akan berjalan
+    sebagaimana mestinya, memungkinkan fungsionalitas penuh dashboard.
+    """
+)
