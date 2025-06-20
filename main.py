@@ -846,7 +846,6 @@ def render_filters(master_df):
 
 def render_health_score_widget(health_data):
     with st.container(border=True):
-        """Render the health score widget"""
 
     
         st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Card title
@@ -883,243 +882,233 @@ def render_health_score_widget(health_data):
 
 
 def render_alerts_widget():
-   """Render the critical alerts widget"""
-   st.markdown('<div class="metric-card">', unsafe_allow_html=True) # Open metric-card
-   st.markdown("<h3>🚨 Critical Alerts</h3>", unsafe_allow_html=True) # Card title
+    with st.container(border=True):
+   
+       st.markdown("<h3>🚨 Critical Alerts</h3>", unsafe_allow_html=True) # Card title
+    
+       # Critical alert item
+       st.markdown("""
+       <div class="alert-item alert-critical-item">
+           <strong>🔴 Sudden Spike in Negative Sentiment</strong>
+           <ul>
+               <li>Product: Mobile App Update X.Y</li>
+               <li>Details: 45% negative sentiment, 150 mentions (last 3 hrs)</li>
+               <li>Key Issues: Login failures, App crashes</li>
+               <li><strong>Action Required:</strong> Immediate technical review</li>
+           </ul>
+       </div>
+       """, unsafe_allow_html=True)
+    
+       # High priority alert item
+       st.markdown("""
+       <div class="alert-item alert-warning-item">
+           <strong>🟡 High Churn Risk Pattern</strong>
+           <ul>
+               <li>Pattern: Repeated billing errors in Savings accounts</li>
+               <li>Affected: 12 unique customer patterns identified</li>
+               <li>Avg. Sentiment: -0.8 (Very Negative)</li>
+               <li><strong>Action:</strong> Customer retention outreach recommended</li>
+           </ul>
+       </div>
+       """, unsafe_allow_html=True)
+    
+       # Buttons at the bottom of the card
+       st.markdown('<div class="spacer-sm"></div>', unsafe_allow_html=True) # Add a little space
+       col1, col2 = st.columns(2)
+       with col1:
+           if st.button("🔍 View All Alerts", key="alerts_view_all", type="primary", use_container_width=True):
+               st.toast("Redirecting to detailed alerts page...", icon=" M")
+    
+       with col2:
+           if st.button("📋 Create Action Plan", key="alerts_action_plan", type="secondary", use_container_width=True):
+               st.toast("Opening action plan creator...", icon="✍️")
 
-   # Critical alert item
-   st.markdown("""
-   <div class="alert-item alert-critical-item">
-       <strong>🔴 Sudden Spike in Negative Sentiment</strong>
-       <ul>
-           <li>Product: Mobile App Update X.Y</li>
-           <li>Details: 45% negative sentiment, 150 mentions (last 3 hrs)</li>
-           <li>Key Issues: Login failures, App crashes</li>
-           <li><strong>Action Required:</strong> Immediate technical review</li>
-       </ul>
-   </div>
-   """, unsafe_allow_html=True)
-
-   # High priority alert item
-   st.markdown("""
-   <div class="alert-item alert-warning-item">
-       <strong>🟡 High Churn Risk Pattern</strong>
-       <ul>
-           <li>Pattern: Repeated billing errors in Savings accounts</li>
-           <li>Affected: 12 unique customer patterns identified</li>
-           <li>Avg. Sentiment: -0.8 (Very Negative)</li>
-           <li><strong>Action:</strong> Customer retention outreach recommended</li>
-       </ul>
-   </div>
-   """, unsafe_allow_html=True)
-
-   # Buttons at the bottom of the card
-   st.markdown('<div class="spacer-sm"></div>', unsafe_allow_html=True) # Add a little space
-   col1, col2 = st.columns(2)
-   with col1:
-       if st.button("🔍 View All Alerts", key="alerts_view_all", type="primary", use_container_width=True):
-           st.toast("Redirecting to detailed alerts page...", icon=" M")
-
-   with col2:
-       if st.button("📋 Create Action Plan", key="alerts_action_plan", type="secondary", use_container_width=True):
-           st.toast("Opening action plan creator...", icon="✍️")
-
-   st.markdown('</div>', unsafe_allow_html=True) # Close metric-card
 
 def render_hotspots_widget():
-   """Render the predictive hotspots widget"""
-   st.markdown('<div class="metric-card">', unsafe_allow_html=True) # Open metric-card
-   st.markdown("<h3>🔮 Predictive Hotspots</h3>", unsafe_allow_html=True) # Card title
-
-   # Emerging issues
-   st.markdown("""
-   <div class="alert-item alert-warning-item" style="border-left-color: #ff9500;"> <!-- Custom orange for this one -->
-       <strong>🆕 New Overdraft Policy Confusion</strong>
-       <ul>
-           <li>Impact Level: Medium 🟡</li>
-           <li>'Confused' language patterns: +30% WoW</li>
-           <li>Common phrases: "don't understand", "how it works"</li>
-           <li><strong>Recommendation:</strong> Create clearer policy explanation</li>
-       </ul>
-   </div>
-   """, unsafe_allow_html=True)
-
-   st.markdown("""
-   <div class="alert-item" style="background-color: #e7f3ff; color: #004085; border-left-color: #007bff;"> <!-- Custom info blue -->
-       <strong>🌐 International Transfer UI Issues</strong>
-       <ul>
-           <li>Impact Level: Low 🟢</li>
-           <li>Task abandonment rate: +15% MoM</li>
-           <li>Negative sentiment around 'Beneficiary Setup'</li>
-           <li><strong>Recommendation:</strong> UI/UX review for international transfers</li>
-       </ul>
-   </div>
-   """, unsafe_allow_html=True)
-
-   # Trend indicators
-   st.markdown('<div class="spacer-sm"></div>', unsafe_allow_html=True)
-   col1, col2, col3 = st.columns(3)
-   with col1:
-       st.metric("Emerging Issues", "2", delta="1")
-   with col2:
-       st.metric("Trending Topics", "5", delta="2")
-   with col3:
-       st.metric("Predicted Risks", "3", delta="-1")
-
-   st.markdown('</div>', unsafe_allow_html=True) # Close metric-card
+    with st.container(border=True):
+   
+       st.markdown("<h3>🔮 Predictive Hotspots</h3>", unsafe_allow_html=True) # Card title
+    
+       # Emerging issues
+       st.markdown("""
+       <div class="alert-item alert-warning-item" style="border-left-color: #ff9500;"> <!-- Custom orange for this one -->
+           <strong>🆕 New Overdraft Policy Confusion</strong>
+           <ul>
+               <li>Impact Level: Medium 🟡</li>
+               <li>'Confused' language patterns: +30% WoW</li>
+               <li>Common phrases: "don't understand", "how it works"</li>
+               <li><strong>Recommendation:</strong> Create clearer policy explanation</li>
+           </ul>
+       </div>
+       """, unsafe_allow_html=True)
+    
+       st.markdown("""
+       <div class="alert-item" style="background-color: #e7f3ff; color: #004085; border-left-color: #007bff;"> <!-- Custom info blue -->
+           <strong>🌐 International Transfer UI Issues</strong>
+           <ul>
+               <li>Impact Level: Low 🟢</li>
+               <li>Task abandonment rate: +15% MoM</li>
+               <li>Negative sentiment around 'Beneficiary Setup'</li>
+               <li><strong>Recommendation:</strong> UI/UX review for international transfers</li>
+           </ul>
+       </div>
+       """, unsafe_allow_html=True)
+    
+       # Trend indicators
+       st.markdown('<div class="spacer-sm"></div>', unsafe_allow_html=True)
+       col1, col2, col3 = st.columns(3)
+       with col1:
+           st.metric("Emerging Issues", "2", delta="1")
+       with col2:
+           st.metric("Trending Topics", "5", delta="2")
+       with col3:
+           st.metric("Predicted Risks", "3", delta="-1")
 
 def render_voice_snapshot(analytics_data, time_period):
-   """Render the customer voice snapshot section"""
-   st.markdown('<div class="section-header">📊 Customer Voice Snapshot</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+       """Render the customer voice snapshot section"""
+       st.markdown('<div class="section-header">📊 Customer Voice Snapshot</div>', unsafe_allow_html=True)
+    
+       col1, col2, col3 = st.columns(3)
+    
+       with col1:
+           with st.container(border=True):
+               st.markdown("<h3>😊 Sentiment Distribution</h3>", unsafe_allow_html=True)
+        
+               fig_sentiment = create_sentiment_chart(analytics_data['sentiment_data'])
+               st.plotly_chart(fig_sentiment, use_container_width=True, config={'displayModeBar': False})
+        
+               sentiment_summary = analytics_data['sentiment_summary']
+               if 'Positif' in sentiment_summary:
+                   st.success(f"Positive: {sentiment_summary['Positif'].split('(')[0].strip()}", icon="👍")
+               if 'Negatif' in sentiment_summary:
+                   st.error(f"Negative: {sentiment_summary['Negatif'].split('(')[0].strip()}", icon="👎")
+               if 'Netral' in sentiment_summary:
+                   st.info(f"Neutral: {sentiment_summary['Netral'].split('(')[0].strip()}", icon="💬")
+    
+    
+       with col2:
+           with st.container(border=True):
+               st.markdown("<h3>🎯 Intent Distribution (Top 5)</h3>", unsafe_allow_html=True)
+        
+               fig_intent = create_intent_chart(analytics_data['intent_data'])
+               st.plotly_chart(fig_intent, use_container_width=True, config={'displayModeBar': False})
+        
+               intent_summary = analytics_data['intent_summary']
+               if intent_summary and "Info" not in intent_summary and intent_summary.keys():
+                   top_intent = list(intent_summary.keys())[0]
+                   st.info(f"Top intent: **{top_intent}** ({intent_summary[top_intent].split('(')[0].strip()})", icon="🎯")
+               else:
+                   st.caption("No dominant intent or data unavailable.")
+    
+    
+       with col3:
+           with st.container(border=True):
+               st.markdown(f"<h3>📈 Volume Trend ({time_period})</h3>", unsafe_allow_html=True)
+        
+               fig_volume = create_volume_chart(analytics_data['volume_data'])
+               st.plotly_chart(fig_volume, use_container_width=True, config={'displayModeBar': False})
+        
+               total_interactions = analytics_data['total_interactions']
+               st.metric("Total Interactions", f"{total_interactions:,}") # Format number
 
-   col1, col2, col3 = st.columns(3)
-
-   with col1:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True) # Open content-block
-       st.markdown("<h3>😊 Sentiment Distribution</h3>", unsafe_allow_html=True)
-
-       fig_sentiment = create_sentiment_chart(analytics_data['sentiment_data'])
-       st.plotly_chart(fig_sentiment, use_container_width=True, config={'displayModeBar': False})
-
-       sentiment_summary = analytics_data['sentiment_summary']
-       if 'Positif' in sentiment_summary:
-           st.success(f"Positive: {sentiment_summary['Positif'].split('(')[0].strip()}", icon="👍")
-       if 'Negatif' in sentiment_summary:
-           st.error(f"Negative: {sentiment_summary['Negatif'].split('(')[0].strip()}", icon="👎")
-       if 'Netral' in sentiment_summary:
-           st.info(f"Neutral: {sentiment_summary['Netral'].split('(')[0].strip()}", icon="💬")
-
-       st.markdown('</div>', unsafe_allow_html=True) # Close content-block
-
-   with col2:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True) # Open content-block
-       st.markdown("<h3>🎯 Intent Distribution (Top 5)</h3>", unsafe_allow_html=True)
-
-       fig_intent = create_intent_chart(analytics_data['intent_data'])
-       st.plotly_chart(fig_intent, use_container_width=True, config={'displayModeBar': False})
-
-       intent_summary = analytics_data['intent_summary']
-       if intent_summary and "Info" not in intent_summary and intent_summary.keys():
-           top_intent = list(intent_summary.keys())[0]
-           st.info(f"Top intent: **{top_intent}** ({intent_summary[top_intent].split('(')[0].strip()})", icon="🎯")
-       else:
-           st.caption("No dominant intent or data unavailable.")
-
-       st.markdown('</div>', unsafe_allow_html=True) # Close content-block
-
-   with col3:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True) # Open content-block
-       st.markdown(f"<h3>📈 Volume Trend ({time_period})</h3>", unsafe_allow_html=True)
-
-       fig_volume = create_volume_chart(analytics_data['volume_data'])
-       st.plotly_chart(fig_volume, use_container_width=True, config={'displayModeBar': False})
-
-       total_interactions = analytics_data['total_interactions']
-       st.metric("Total Interactions", f"{total_interactions:,}") # Format number
-
-       st.markdown('</div>', unsafe_allow_html=True) # Close content-block
        
 def render_customer_themes():
-   """Render the customer themes section"""
-   st.markdown('<div class="section-header">💭 Top Customer Themes</div>', unsafe_allow_html=True)
-
-   col1, col2 = st.columns(2)
-
-   with col1:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True) # Open content-block
-       st.markdown("<h3>🌟 Top Positive Themes</h3>", unsafe_allow_html=True)
-
-       positive_themes = [
-           {"theme": "Fast Customer Service", "mentions": 156, "sentiment": 0.85},
-           {"theme": "Easy Mobile Banking", "mentions": 134, "sentiment": 0.82},
-           {"theme": "Helpful Staff", "mentions": 112, "sentiment": 0.78},
-       ] # Shortened for brevity
-
-       for theme in positive_themes:
-           st.markdown(f"""
-           <div class="theme-item">
-               <strong>{theme['theme']}</strong>
-               <p style="margin-bottom:0.1rem;">Mentions: {theme['mentions']} | Sentiment: {theme['sentiment']:.2f} <span style="color: green;">▲</span></p>
-           </div>
-           """, unsafe_allow_html=True)
-
-       st.markdown('<div class="theme-quote positive">💬 "Support resolved my issue in minutes! So efficient and professional."</div>', unsafe_allow_html=True)
-       st.markdown('</div>', unsafe_allow_html=True) # Close content-block
-
-   with col2:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True) # Open content-block
-       st.markdown("<h3>⚠️ Top Negative Themes</h3>", unsafe_allow_html=True)
-
-       negative_themes = [
-           {"theme": "App Technical Issues", "mentions": 89, "sentiment": -0.72},
-           {"theme": "Long Wait Times", "mentions": 76, "sentiment": -0.68},
-           {"theme": "Fee Transparency", "mentions": 65, "sentiment": -0.58},
-       ] # Shortened for brevity
-
-       for theme in negative_themes:
-           st.markdown(f"""
-           <div class="theme-item">
-               <strong>{theme['theme']}</strong>
-               <p style="margin-bottom:0.1rem;">Mentions: {theme['mentions']} | Sentiment: {theme['sentiment']:.2f} <span style="color: red;">▼</span></p>
-           </div>
-           """, unsafe_allow_html=True)
-
-       st.markdown('<div class="theme-quote negative">💬 "The app keeps crashing after the latest update. Very frustrating experience."</div>', unsafe_allow_html=True)
-       st.markdown('</div>', unsafe_allow_html=True) # Close content-block
+    with st.container(border=True):
+       st.markdown('<div class="section-header">💭 Top Customer Themes</div>', unsafe_allow_html=True)
+    
+       col1, col2 = st.columns(2)
+    
+       with col1:
+            with st.container(border=True):
+               st.markdown("<h3>🌟 Top Positive Themes</h3>", unsafe_allow_html=True)
+        
+               positive_themes = [
+                   {"theme": "Fast Customer Service", "mentions": 156, "sentiment": 0.85},
+                   {"theme": "Easy Mobile Banking", "mentions": 134, "sentiment": 0.82},
+                   {"theme": "Helpful Staff", "mentions": 112, "sentiment": 0.78},
+               ] # Shortened for brevity
+        
+               for theme in positive_themes:
+                   st.markdown(f"""
+                   <div class="theme-item">
+                       <strong>{theme['theme']}</strong>
+                       <p style="margin-bottom:0.1rem;">Mentions: {theme['mentions']} | Sentiment: {theme['sentiment']:.2f} <span style="color: green;">▲</span></p>
+                   </div>
+                   """, unsafe_allow_html=True)
+        
+               st.markdown('<div class="theme-quote positive">💬 "Support resolved my issue in minutes! So efficient and professional."</div>', unsafe_allow_html=True)
+    
+       with col2:
+           with st.container(border=True):
+               st.markdown("<h3>⚠️ Top Negative Themes</h3>", unsafe_allow_html=True)
+        
+               negative_themes = [
+                   {"theme": "App Technical Issues", "mentions": 89, "sentiment": -0.72},
+                   {"theme": "Long Wait Times", "mentions": 76, "sentiment": -0.68},
+                   {"theme": "Fee Transparency", "mentions": 65, "sentiment": -0.58},
+               ] # Shortened for brevity
+        
+               for theme in negative_themes:
+                   st.markdown(f"""
+                   <div class="theme-item">
+                       <strong>{theme['theme']}</strong>
+                       <p style="margin-bottom:0.1rem;">Mentions: {theme['mentions']} | Sentiment: {theme['sentiment']:.2f} <span style="color: red;">▼</span></p>
+                   </div>
+                   """, unsafe_allow_html=True)
+        
+               st.markdown('<div class="theme-quote negative">💬 "The app keeps crashing after the latest update. Very frustrating experience."</div>', unsafe_allow_html=True)
 
 def render_opportunity_radar():
-   """Render the opportunity radar section"""
-   st.markdown('<div class="section-header">🎯 Opportunity Radar</div>', unsafe_allow_html=True)
-
-   col1, col2, col3 = st.columns(3)
-
-   with col1:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True)
-       st.markdown("<h3>🎉 Delightful Features</h3>", unsafe_allow_html=True)
-       st.markdown("""
-       <div class="opportunity-item">
-           <strong>Instant Card Activation</strong>
-           <p>Delight mentions: 75 this week</p>
-           <p>Sentiment Score: +0.95 (Exceptional)</p>
-           <p>Keywords: "amazing", "so easy", "instant"</p>
-           <p><strong>Opportunity:</strong> Amplify in marketing</p>
-           <p><strong>ROI Potential:</strong> <span style="color:green; font-weight:bold;">High</span></p>
-       </div>
-       """, unsafe_allow_html=True)
-       st.success("**Action**: Showcase in customer testimonials", icon="💡")
-       st.markdown('</div>', unsafe_allow_html=True)
-
-   with col2:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True)
-       st.markdown("<h3>💰 Cross-Sell Opportunities</h3>", unsafe_allow_html=True)
-       st.markdown("""
-       <div class="opportunity-item">
-           <strong>Mortgage Inquiry Surge</strong>
-           <p>Mortgage info requests: +15% WoW</p>
-           <p>Related topics: Savings, Financial Planning</p>
-           <p>Segments: 25-40 age group</p>
-           <p><strong>Opportunity:</strong> Targeted mortgage promotions</p>
-           <p><strong>ROI Potential:</strong> <span style="color:darkorange; font-weight:bold;">Very High</span></p>
-       </div>
-       """, unsafe_allow_html=True)
-       st.info("**Action**: Create personalized mortgage offers", icon="📈")
-       st.markdown('</div>', unsafe_allow_html=True)
-
-   with col3:
-       st.markdown('<div class="content-block">', unsafe_allow_html=True)
-       st.markdown("<h3>⭐ Service Excellence</h3>", unsafe_allow_html=True)
-       st.markdown("""
-       <div class="opportunity-item">
-           <strong>Complex Issue Resolution</strong>
-           <p>Excellence mentions: 25 (complex cases)</p>
-           <p>Top performers: Agent A, B, C</p>
-           <p>Resolution time: 15% faster than avg</p>
-           <p><strong>Opportunity:</strong> Scale best practices</p>
-           <p><strong>ROI Potential:</strong> <span style="color:green; font-weight:bold;">Medium-High</span></p>
-       </div>
-       """, unsafe_allow_html=True)
-       st.success("**Action**: Implement training program", icon="🤝")
-       st.markdown('</div>', unsafe_allow_html=True)
+    with st.container(border=True):
+       st.markdown('<div class="section-header">🎯 Opportunity Radar</div>', unsafe_allow_html=True)
+    
+       col1, col2, col3 = st.columns(3)
+    
+       with col1:
+           with st.container(border=True):
+               st.markdown("<h3>🎉 Delightful Features</h3>", unsafe_allow_html=True)
+               st.markdown("""
+               <div class="opportunity-item">
+                   <strong>Instant Card Activation</strong>
+                   <p>Delight mentions: 75 this week</p>
+                   <p>Sentiment Score: +0.95 (Exceptional)</p>
+                   <p>Keywords: "amazing", "so easy", "instant"</p>
+                   <p><strong>Opportunity:</strong> Amplify in marketing</p>
+                   <p><strong>ROI Potential:</strong> <span style="color:green; font-weight:bold;">High</span></p>
+               </div>
+               """, unsafe_allow_html=True)
+               st.success("**Action**: Showcase in customer testimonials", icon="💡")
+    
+       with col2:
+           with st.container(border=True):
+               st.markdown("<h3>💰 Cross-Sell Opportunities</h3>", unsafe_allow_html=True)
+               st.markdown("""
+               <div class="opportunity-item">
+                   <strong>Mortgage Inquiry Surge</strong>
+                   <p>Mortgage info requests: +15% WoW</p>
+                   <p>Related topics: Savings, Financial Planning</p>
+                   <p>Segments: 25-40 age group</p>
+                   <p><strong>Opportunity:</strong> Targeted mortgage promotions</p>
+                   <p><strong>ROI Potential:</strong> <span style="color:darkorange; font-weight:bold;">Very High</span></p>
+               </div>
+               """, unsafe_allow_html=True)
+               st.info("**Action**: Create personalized mortgage offers", icon="📈")
+        
+       with col3:
+           with st.container(border=True):
+               st.markdown("<h3>⭐ Service Excellence</h3>", unsafe_allow_html=True)
+               st.markdown("""
+               <div class="opportunity-item">
+                   <strong>Complex Issue Resolution</strong>
+                   <p>Excellence mentions: 25 (complex cases)</p>
+                   <p>Top performers: Agent A, B, C</p>
+                   <p>Resolution time: 15% faster than avg</p>
+                   <p><strong>Opportunity:</strong> Scale best practices</p>
+                   <p><strong>ROI Potential:</strong> <span style="color:green; font-weight:bold;">Medium-High</span></p>
+               </div>
+               """, unsafe_allow_html=True)
+               st.success("**Action**: Implement training program", icon="🤝")
        
 def render_vira_chat(dashboard_state):
    """Render the VIRA chat interface"""
