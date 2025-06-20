@@ -223,10 +223,12 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### Menu")
-    
-    st.page_link("streamlit_app.py", label="📊 Dashboard", icon="📊")
-    st.page_link("streamlit_app.py", label="📈 Analytics", icon="📈")
-    st.page_link("streamlit_app.py", label="💬 Feedback", icon="💬")
+ 
+    # Menggunakan st.markdown untuk meniru tautan tanpa fungsionalitas navigasi
+    # Ini akan mempertahankan tampilan visual tanpa menyebabkan error.
+    st.markdown("📊 **Dashboard**")
+    st.markdown("📈 Analytics")
+    st.markdown("💬 Feedback")
     
     st.markdown("---")
     st.info("👤 **Account:** Sebastian (CX Manager)")
