@@ -187,15 +187,12 @@ st.markdown("""
         color: #555;
         font-style: italic;
     }
-</style>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-div.stContainer {
+    .bordered {
     border: 2px solid #4CAF50;
     border-radius: 5px;
     padding: 10px;
+    margin: 10px 0px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -417,7 +414,7 @@ if page == "Dashboard":
                 st.markdown('</div>', unsafe_allow_html=True)  # Close the metric-card div
 
     with col2: # Critical Alerts (static content)
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bordered">', unsafe_allow_html=True)
         st.markdown("### Critical Alerts")
         alert_view = st.radio("View", ["Critical", "High", "Medium", "All"], horizontal=True, key="alert_view")
         st.markdown("""
