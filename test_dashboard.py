@@ -1,7 +1,6 @@
 import streamlit as st
 
 html_string = """
-<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -2531,7 +2530,6 @@ html_string = """
       });
     </script>
   </body>
-</html>
 """
 
 # Mengatur layout halaman menjadi lebar (opsional, tapi sering berguna untuk dashboard)
