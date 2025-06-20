@@ -2508,4 +2508,5 @@ html_string = """
 
 """
 
-st.markdown(html_string, unsafe_allow_html=True)
+st.html(html_string, height=300, scrolling=True) # scrolling=True jika kontennya panjang
+
