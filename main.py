@@ -916,16 +916,6 @@ def render_health_score_widget(health_data):
 # berada di dalam div yang dihasilkan oleh st.container().
 # Div ini adalah yang kita targetkan dengan CSS: .metric-card-container > div:first-child
 with st.container():
-     score = health_data["score"]
-    if score >= 80:
-        st.success("🎉 Excellent customer satisfaction! Keep up the great work.", icon="✅")
-    elif score >= 70:
-        st.info("👍 Good customer satisfaction with room for improvement.", icon="💡")
-    elif score >= 60:
-        st.warning("⚠️ Moderate satisfaction. Consider addressing key issues.", icon="🔍")
-    else:
-        st.error("🚨 Low satisfaction detected. Immediate action recommended.", icon="🔥")
-
     st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Judul Kartu
 
     # Tampilkan skor dan tren dengan lebih menonjol
@@ -950,15 +940,15 @@ with st.container():
     st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
 
     # Interpretasi skor kesehatan
-    # score = health_data["score"]
-    # if score >= 80:
-    #     st.success("🎉 Excellent customer satisfaction! Keep up the great work.", icon="✅")
-    # elif score >= 70:
-    #     st.info("👍 Good customer satisfaction with room for improvement.", icon="💡")
-    # elif score >= 60:
-    #     st.warning("⚠️ Moderate satisfaction. Consider addressing key issues.", icon="🔍")
-    # else:
-    #     st.error("🚨 Low satisfaction detected. Immediate action recommended.", icon="🔥")
+    score = health_data["score"]
+    if score >= 80:
+        st.success("🎉 Excellent customer satisfaction! Keep up the great work.", icon="✅")
+    elif score >= 70:
+        st.info("👍 Good customer satisfaction with room for improvement.", icon="💡")
+    elif score >= 60:
+        st.warning("⚠️ Moderate satisfaction. Consider addressing key issues.", icon="🔍")
+    else:
+        st.error("🚨 Low satisfaction detected. Immediate action recommended.", icon="🔥")
 
 # DAN INI DIA PENUTUP KOTAKNYA (Menutup div pembungkus luar)
 st.markdown('</div>', unsafe_allow_html=True)
