@@ -347,29 +347,59 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown("### Customer Health Score")
-        health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
-        score_col1, score_col2 = st.columns([1, 2])
-        with score_col1:
-            st.markdown(f'<div class="metric-value">{current_health_data["score"]}%</div>', unsafe_allow_html=True)
-        with score_col2:
-            trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
-            trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
-            st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="metric-card">
+        <h3>Customer Health Score</h3>
 
-        fig_health = go.Figure()
-        fig_health.add_trace(go.Scatter(
-            x=current_health_data["labels"], y=current_health_data["values"], mode='lines', fill='tozeroy',
-            fillcolor='rgba(52,199,89,0.18)', line=dict(color='#34c759', width=2), name='Health Score'
-        ))
-        fig_health.update_layout(
-            height=150, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            xaxis=dict(showgrid=False, showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9)),
-            yaxis=dict(showgrid=True, gridcolor='#e5e5ea', showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9), range=[min(current_health_data["values"]) - 2, max(current_health_data["values"]) + 2])
-        )
-        st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
-        st.markdown("Overall customer satisfaction is strong, showing a positive trend this month.") # Example text
-        st.markdown('</div>', unsafe_allow_html=True)
+    <div class="radio-group">
+        <span>View:</span>
+        <input type="radio" id="health_view_realtime" name="health_view" value="Real-time" checked>
+        <label for="health_view_realtime">Real-time</label>
+
+        <input type="radio" id="health_view_daily" name="health_view" value="Daily Trend">
+        <label for="health_view_daily">Daily Trend</label>
+
+        <input type="radio" id="health_view_comparison" name="health_view" value="Comparison">
+        <label for="health_view_comparison">Comparison</label>
+    </div>
+
+    <div class="columns-container">
+        <div class="column1">
+            <div class="metric-value" id="healthScoreValue">85%</div>
+        </div>
+        <div class="column2">
+            <div id="healthTrend" class="metric-trend-positive">↑ +2.1% vs last week</div>
+        </div>
+    </div>
+
+    <div id="healthChartContainer"></div>
+
+    <p class="description-text">Overall customer satisfaction is strong, showing a positive trend this month.</p>
+    </div>
+        """, unsafe_allow_html=True)
+        # st.markdown("### Customer Health Score")
+        # health_view = st.radio("View", ["Real-time", "Daily Trend", "Comparison"], horizontal=True, key="health_view")
+        # score_col1, score_col2 = st.columns([1, 2])
+        # with score_col1:
+        #     st.markdown(f'<div class="metric-value">{current_health_data["score"]}%</div>', unsafe_allow_html=True)
+        # with score_col2:
+        #     trend_icon = "↑" if current_health_data["trend_positive"] else "↓"
+        #     trend_class = "metric-trend-positive" if current_health_data["trend_positive"] else "metric-trend-negative"
+        #     st.markdown(f'<div class="{trend_class}">{trend_icon} {current_health_data["trend"]} {current_health_data["trend_label"]}</div>', unsafe_allow_html=True)
+
+        # fig_health = go.Figure()
+        # fig_health.add_trace(go.Scatter(
+        #     x=current_health_data["labels"], y=current_health_data["values"], mode='lines', fill='tozeroy',
+        #     fillcolor='rgba(52,199,89,0.18)', line=dict(color='#34c759', width=2), name='Health Score'
+        # ))
+        # fig_health.update_layout(
+        #     height=150, margin=dict(l=0, r=0, t=10, b=0), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+        #     xaxis=dict(showgrid=False, showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9)),
+        #     yaxis=dict(showgrid=True, gridcolor='#e5e5ea', showline=False, showticklabels=True, tickfont=dict(color='#4a4a4f', size=9), range=[min(current_health_data["values"]) - 2, max(current_health_data["values"]) + 2])
+        # )
+        # st.plotly_chart(fig_health, use_container_width=True, config={'displayModeBar': False})
+        # st.markdown("Overall customer satisfaction is strong, showing a positive trend this month.") # Example text
+        # st.markdown('</div>', unsafe_allow_html=True)
 
     with col2: # Critical Alerts (static content)
         st.markdown("### Critical Alerts")
