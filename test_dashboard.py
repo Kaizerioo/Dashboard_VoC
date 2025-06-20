@@ -1,3 +1,27 @@
+# Install required packages
+def install(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+# List of required packages
+packages = [
+    "pandas",
+    "numpy",
+    "altair",
+    "matplotlib",
+    "plotly",
+    "streamlit-option-menu",
+    "streamlit-chat"
+]
+
+# Install each package if not already installed
+for package in packages:
+    try:
+        __import__(package.replace("-", "_"))
+    except ImportError:
+        st.write(f"Installing {package}...")
+        install(package)
+        st.experimental_rerun()
+        
 import streamlit as st
 import pandas as pd
 import numpy as np
