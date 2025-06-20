@@ -121,23 +121,19 @@ st.markdown("""
 
 # --- DATA LOADING ---
 
-@st.cache_data(ttl=600)
+@st.cache_data(ttl=600)Add commentMore actions
 def load_data_from_google_sheets():
-    """
-    Fetches and preprocesses data from a specified Google Sheet.
-    Uses Streamlit secrets for authentication. Caches the data for 10 minutes.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the preprocessed data, or an empty
-                      DataFrame if an error occurs.
-    """
     try:
+        # Access individual fields from the TOML table
         gcp_creds_table = st.secrets["gcp_service_account_credentials"]
+
+        # Reconstruct the JSON structure expected by from_service_account_info
         creds_info = {
             "type": gcp_creds_table["type"],
             "project_id": gcp_creds_table["project_id"],
             "private_key_id": gcp_creds_table["private_key_id"],
             "private_key": gcp_creds_table["private_key"].replace('\\n', '\n'),
+            "private_key": gcp_creds_table["private_key"].replace('\\n', '\n'), # Important: unescape \n for from_service_account_info
             "client_email": gcp_creds_table["client_email"],
             "client_id": gcp_creds_table["client_id"],
             "auth_uri": gcp_creds_table["auth_uri"],
@@ -151,34 +147,87 @@ def load_data_from_google_sheets():
         result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
         values = result.get('values', [])
 
+        if not values or len(values) < 2: # Check for header and at least one data row
+            st.error("No data or only header found in the Google Sheet.")
+            return pd.DataFrame(columns=['Date', 'Product', 'Channel', 'Sentimen', 'Intent', 'Interaction ID', 'Details', 'Customer ID']) # Ensure essential columns exist
+
+        df = pd.DataFrame(values[1:], columns=values[0])
+
+        # Standardize column names and types
+        expected_columns = {
+            'Date': 'datetime64[ns]',
+            'Product': 'str',
+            'Channel': 'str',
+            'Sentimen': 'str',
+            'Intent': 'str',
+            'Interaction ID': 'str',
+            'Details': 'str',
+            'Customer ID': 'str'
+        }
+        # Ensure all expected columns exist, fill with NA if not
+        for col, dtype in expected_columns.items():
+            if col not in df.columns:
+                df[col] = pd.NA
+            if col == 'Date':
+                 # Attempt to parse 'Date' with multiple formats
+                try:
+                    df['Date'] = pd.to_datetime(df['Date'], errors='coerce') # General parser first
+                except Exception: # If general fails, try specific
+                    df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
+        creds = service_account.Credentials.from_service_account_info(
+            creds_info, scopes=SCOPES)
+
+        service = build('sheets', 'v4', credentials=creds)
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=SPREADSHEET_ID, range=RANGE_NAME).execute()
+        values = result.get('values', [])
         if not values:
             st.error("No data found in the Google Sheet.")
             return pd.DataFrame()
-
-        [span_25](start_span)df = pd.DataFrame(values[1:], columns=values[0])[span_25](end_span)
-        # Data Cleaning and Type Conversion
-        if 'Date' in df.columns:
-            df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
-            df.dropna(subset=['Date'], inplace=True)
         else:
-            [span_26](start_span)st.warning("Column 'Date' not found. Time filtering will not work correctly.")[span_26](end_span)
-        if 'Product' in df.columns:
-            [span_27](start_span)df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_")[span_27](end_span)
-        if 'Channel' in df.columns:
-            [span_28](start_span)df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_")[span_28](end_span)
-        if 'Sentimen' in df.columns:
-            [span_29](start_span)df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize()[span_29](end_span)
-        if 'Intent' in df.columns:
-            df['Intent'] = df['Intent'].astype(str)
+            df = pd.DataFrame(values[1:], columns=values[0])
+            if 'Date' in df.columns:
+                df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
+                df.dropna(subset=['Date'], inplace=True)
+            elif col in ['Product', 'Channel']:
+                df[col] = df[col].astype(str).str.lower().str.replace(" ", "_").str.strip()
+            elif col == 'Sentimen':
+                df[col] = df[col].astype(str).str.capitalize().str.strip()
+                # Standardize sentiment values
+                sentiment_mapping = {
+                    "Positive": "Positif", "Positive ": "Positif",
+                    "Negative": "Negatif", "Negative ": "Negatif",
+                    "Neutral": "Netral", "Neutral ": "Netral",
+                }
+                df['Sentimen'] = df['Sentimen'].replace(sentiment_mapping)
+            else:
+                df[col] = df[col].astype(str).str.strip()
         return df
-
+                st.warning("Column 'Date' not found in Google Sheet. Time filtering will not work correctly.")
+            if 'Product' in df.columns:
+                df['Product'] = df['Product'].astype(str).str.lower().str.replace(" ", "_")
+            if 'Channel' in df.columns:
+                df['Channel'] = df['Channel'].astype(str).str.lower().str.replace(" ", "_")
+            if 'Sentimen' in df.columns:
+                df['Sentimen'] = df['Sentimen'].astype(str).str.capitalize()
+            if 'Intent' in df.columns:
+                df['Intent'] = df['Intent'].astype(str)
+            return df
     except KeyError as e:
+        st.error(f"Missing secret: {e}. Please ensure 'gcp_service_account_credentials' and potentially 'google_sheets' config are set in your Streamlit secrets.")
+        return pd.DataFrame(columns=['Date', 'Product', 'Channel', 'Sentimen', 'Intent']) # Return empty DF with expected columns
         st.error(f"Missing secret: {e}. Please ensure 'gcp_service_account_credentials' is set in your Streamlit secrets.")
         return pd.DataFrame()
-    except Exception as e:
-        st.error(f"An error occurred while loading data from Google Sheets: {e}")
+    except json.JSONDecodeError:
+        st.error("Error decoding GCP credentials from Streamlit secrets. Please check the format in secrets.toml.")
+        return pd.DataFrame(columns=['Date', 'Product', 'Channel', 'Sentimen', 'Intent'])
         return pd.DataFrame()
-
+    except Exception as e:
+        st.error(f"Error loading data from Google Sheets: {e}")
+        # Log full error for debugging if needed: print(f"Full GSheets Error: {e}", file=sys.stderr)
+        return pd.DataFrame(columns=['Date', 'Product', 'Channel', 'Sentimen', 'Intent'])
+        return pd.DataFrame()
 @st.cache_data
 def generate_health_score_data():
     """Generates static sample data for the Customer Health Score."""
