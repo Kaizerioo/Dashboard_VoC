@@ -121,7 +121,7 @@ st.markdown("""
 
 # --- DATA LOADING ---
 
-@st.cache_data(ttl=600)Add commentMore actions
+@st.cache_data(ttl=600)
 def load_data_from_google_sheets():
     try:
         # Access individual fields from the TOML table
