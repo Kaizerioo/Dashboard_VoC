@@ -849,7 +849,7 @@ def render_health_score_widget(health_data):
     # INI DIA PEMBUKA KOTAKNYA
     st.markdown('<div class="metric-card">', unsafe_allow_html=True) # Open metric-card
 
-    st.markdown("<h3>💚 Customer Health Score</h3>", unsafe_allow_html=True) # Card title
+    st.markdown("<h3>💚 Customer ASDWD Score</h3>", unsafe_allow_html=True) # Card title
 
     # Display score and trend more prominently
     col_score, col_trend_text = st.columns([2,3])
