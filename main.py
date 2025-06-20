@@ -408,13 +408,9 @@ if page == "Dashboard":
     col1, col2, col3 = st.columns(3)
 
     
-    with st.container():
-        # Open the metric-card div
-        st.markdown('<div class="metric-card">', unsafe_allow_html=True)
-
+    
         # Content inside the card
-        with col1:
-            with col1:
+    with col1:
         with st.container(border=True):
             st.subheader("Customer Health Score")
             current_health_data = health_score_data[time_filter]
