@@ -1,10 +1,3 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import time
-
 # ======================================================================================
 # 1. KONFIGURASI HALAMAN DAN GAYA (CSS)
 # ======================================================================================
@@ -15,8 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Ekstrak dan adaptasi CSS kunci dari file HTML
-# Ini menargetkan kelas yang dihasilkan Streamlit dan kelas kustom yang kita tambahkan.
+# ... [CSS DARI LANGKAH SEBELUMNYA TETAP SAMA, TIDAK PERLU DIUBAH] ...
 st.markdown("""
 <style>
     /* Mengimpor Font Apple */
@@ -101,14 +93,12 @@ st.markdown("""
 
 # ======================================================================================
 # 2. DATA MOCK & FUNGSI BANTU
-# Ini mereplikasi data yang ditemukan di skrip JS
 # ======================================================================================
-if "show_chat" not in st.session_state:
-    st.session_state.show_chat = False
+# <-- PERUBAHAN: Hanya menginisialisasi pesan chatbot, tidak perlu state 'show_chat' lagi -->
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm VIRA. How can I help?"}]
 
-# Data untuk Health Score Widget
+# ... [FUNGSI DATA MOCK & GRAFIK DARI SEBELUMNYA TETAP SAMA] ...
 health_score_data = {
     "This Month": {"score": 82, "trend": 1.5, "trend_label": "vs. last month", "labels": ["Week 1", "Week 2", "Week 3", "Week 4"], "values": [79, 80, 81, 82]},
     "Today": {"score": 84, "trend": 2.5, "trend_label": "vs. yesterday", "labels": ["9 AM", "1 PM", "5 PM", "9 PM"], "values": [78, 80, 81, 84]},
@@ -186,7 +176,7 @@ def create_volume_chart():
         showlegend=False
     )
     return fig
-
+    
 def get_bot_response(msg):
     lm = msg.lower()
     if "health score" in lm:
@@ -198,18 +188,13 @@ def get_bot_response(msg):
     if "thank" in lm:
         return "You're welcome! Anything else?"
     return 'I can help with dashboard insights. Try "summarize alerts", or "top opportunities".'
-
-
 # ======================================================================================
-# 3. SIDEBAR
-# Mereplikasi filter dan navigasi
+# 3. SIDEBAR KIRI (NAVIGASI & FILTER)
 # ======================================================================================
-
 with st.sidebar:
     st.markdown("## VOCAL")
     st.markdown("---")
-    st.info("👤 **Account:** Sebastian (CX Manager)")
-    st.markdown("---")
+
     # Filter
     time_filter = st.selectbox("Time", options=["This Month", "Today", "This Week", "This Quarter", "This Year", "All Periods"], index=0)
     product_options = ["myBCA", "BCA Mobile", "KPR", "KKB", "KSM", "Investasi", "Asuransi", "Kartu Kredit"]
@@ -223,153 +208,117 @@ with st.sidebar:
     st.markdown("📈 Analytics")
     st.markdown("💬 Feedback")
     
+    # <-- PERUBAHAN: Tombol pemicu chatbot dihapus dari sini -->
+    
     st.markdown("---")
-    # <-- PERUBAHAN: Tombol untuk membuka dialog chatbot -->
-    if st.button("🤖 Open AI Assistant", use_container_width=True):
-        st.session_state.show_chat = True
-        
-
-
-
+    st.info("👤 **Account:** Sebastian (CX Manager)")
 
 # ======================================================================================
-# 4. KONTEN UTAMA
-# Mereplikasi tata letak grid dan widget
+# 4. TATA LETAK UTAMA DENGAN KOLOM KANAN
 # ======================================================================================
 
 st.header("Customer Experience Health")
 st.write("Real-time Insights & Performance Overview")
-st.markdown("---")
 
-# Baris pertama widget
-col1, col2, col3 = st.columns(3)
+# <-- PERUBAHAN: Mendefinisikan kolom utama untuk dasbor dan sidebar chatbot kanan -->
+main_content, chat_sidebar = st.columns([2.5, 1], gap="large")
 
-with col1:
-    with st.container(border=True):
-        st.subheader("Customer Health Score")
-        
-        # Mengambil data berdasarkan filter waktu
-        current_health_data = health_score_data[time_filter]
-        
-        # Metrik
-        score = current_health_data['score']
-        trend = current_health_data['trend']
-        trend_label = current_health_data['trend_label']
-        trend_class = "trend-positive" if trend >= 0 else "trend-negative"
-        arrow = "↑" if trend >= 0 else "↓"
-        
-        st.markdown(f'''
-        <div style="text-align: center;">
-            <span style="font-size: 3rem; font-weight: 500; color: var(--accent-color);">{score}</span>
-            <span style="font-size: 1.8rem; color: var(--text-secondary);">%</span>
-            <div class="{trend_class} health-trend">
-                <span>{arrow} {trend}% {trend_label}</span>
+# Semua konten dasbor sekarang masuk ke kolom 'main_content'
+with main_content:
+    st.markdown("---")
+    # Baris pertama widget
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        with st.container(border=True):
+            st.subheader("Customer Health Score")
+            current_health_data = health_score_data[time_filter]
+            score = current_health_data['score']
+            trend = current_health_data['trend']
+            trend_label = current_health_data['trend_label']
+            trend_class = "trend-positive" if trend >= 0 else "trend-negative"
+            arrow = "↑" if trend >= 0 else "↓"
+            
+            st.markdown(f"""
+            <div style="text-align: center;">
+                <span style="font-size: 3rem; font-weight: 500; color: var(--accent-color);">{score}</span>
+                <span style="font-size: 1.8rem; color: var(--text-secondary);">%</span>
+                <div class="{trend_class} health-trend">
+                    <span>{arrow} {trend}% {trend_label}</span>
+                </div>
             </div>
-        </div>
-        ''', unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+            st.plotly_chart(create_health_trend_chart(current_health_data), use_container_width=True)
+            st.info("Overall customer satisfaction is strong.", icon="✅")
 
-        # Grafik
-        st.plotly_chart(create_health_trend_chart(current_health_data), use_container_width=True)
-        
-        st.info("Overall customer satisfaction is strong, showing a positive trend.", icon="✅")
+    with col2:
+        with st.container(border=True):
+            st.subheader("Critical Alerts")
+            st.markdown("""
+            <div class="alert-item alert-critical"><strong>Sudden Spike in Negative Sentiment</strong><p class="metric-subtitle">Mobile App Update X.Y: 45% negative</p></div>
+            """, unsafe_allow_html=True)
+            st.markdown("""
+            <div class="alert-item alert-high"><strong>High Churn Risk Pattern Detected</strong><p class="metric-subtitle">Pattern: Repeated Billing Errors</p></div>
+            """, unsafe_allow_html=True)
+            if st.button("View All Alerts", use_container_width=True, type="primary"):
+                st.toast("Navigating to all alerts...")
 
+    with col3:
+        with st.container(border=True):
+            st.subheader("Predictive Hotspots")
+            st.warning("New Overdraft Policy Confusion")
+            st.caption("Task Abandonment: +15% MoM")
+            if st.button("Create Action", use_container_width=True, type="primary"):
+                st.toast("Opening action creation modal...")
 
-with col2:
+    # Widget lebar penuh - Customer Voice Snapshot
     with st.container(border=True):
-        st.subheader("Critical Alerts")
-        
-        st.markdown("""
-        <div class="alert-item alert-critical">
-            <strong>Sudden Spike in Negative Sentiment</strong>
-            <p class="metric-subtitle">Mobile App Update X.Y: 45% negative<br>Issues: Login Failed, App Crashing</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        st.markdown("""
-        <div class="alert-item alert-high">
-            <strong>High Churn Risk Pattern Detected</strong>
-            <p class="metric-subtitle">Pattern: Repeated Billing Errors - Savings<br>12 unique customer patterns</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("View All Alerts", use_container_width=True, type="primary"):
-            st.toast("Navigating to all alerts...")
-
-
-with col3:
+        st.subheader("Customer Voice Snapshot")
+        snap_col1, snap_col2, snap_col3 = st.columns(3)
+        with snap_col1:
+            st.markdown("<div style='text-align: center'>Sentiment</div>", unsafe_allow_html=True)
+            st.plotly_chart(create_sentiment_chart(), use_container_width=True)
+        with snap_col2:
+            st.markdown("<div style='text-align: center'>Intent</div>", unsafe_allow_html=True)
+            st.plotly_chart(create_intent_chart(), use_container_width=True)
+        with snap_col3:
+            st.markdown("<div style='text-align: center'>Volume Trend</div>", unsafe_allow_html=True)
+            st.plotly_chart(create_volume_chart(), use_container_width=True)
+            
+    # Widget lebar penuh - Top Themes
     with st.container(border=True):
-        st.subheader("Predictive Hotspots")
+        st.subheader("Top Customer Themes")
+        theme_col1, theme_col2 = st.columns(2)
+        with theme_col1:
+            st.markdown("#### Top Positive Themes")
+            st.success("✅ Fast Customer Service")
+            st.success("✅ Easy Mobile Banking")
+        with theme_col2:
+            st.markdown("#### Top Negative Themes")
+            st.error("❌ App Technical Issues")
+            st.error("❌ Long Wait Times (Call)")
 
-        st.warning("New Overdraft Policy Confusion (Medium Impact)")
-        st.caption("'Confused' Language: +30% WoW")
+
+# <-- PERUBAHAN: Logika chatbot sekarang ada di dalam kolom 'chat_sidebar' -->
+with chat_sidebar:
+    # Menggunakan st.container untuk memberikan latar belakang dan border
+    with st.container(border=True):
+        st.markdown("<h5>🤖 VIRA AI Assistant</h5>", unsafe_allow_html=True)
         
-        st.info("Intl. Transfer UI Issues (Low Impact)")
-        st.caption("Task Abandonment: +15% MoM")
-        
-        if st.button("Create Action", use_container_width=True, type="primary"):
-            st.toast("Opening action creation modal...")
-
-# Widget lebar penuh - Customer Voice Snapshot
-with st.container(border=True):
-    st.subheader("Customer Voice Snapshot")
-    snap_col1, snap_col2, snap_col3 = st.columns(3)
-    
-    with snap_col1:
-        st.markdown("<div style='text-align: center'>Sentiment Distribution</div>", unsafe_allow_html=True)
-        st.plotly_chart(create_sentiment_chart(), use_container_width=True)
-
-    with snap_col2:
-        st.markdown("<div style='text-align: center'>Intent Distribution</div>", unsafe_allow_html=True)
-        st.plotly_chart(create_intent_chart(), use_container_width=True)
-
-    with snap_col3:
-        st.markdown("<div style='text-align: center'>Volume Trend (30 Days)</div>", unsafe_allow_html=True)
-        st.plotly_chart(create_volume_chart(), use_container_width=True)
-
-# Widget lebar penuh - Top Themes
-with st.container(border=True):
-    st.subheader("Top Customer Themes")
-    theme_col1, theme_col2 = st.columns(2)
-
-    with theme_col1:
-        st.markdown("#### Top Positive Themes")
-        st.success("✅ Fast Customer Service")
-        st.success("✅ Easy Mobile Banking")
-        st.success("✅ Helpful Staff")
-
-    with theme_col2:
-        st.markdown("#### Top Negative Themes")
-        st.error("❌ App Technical Issues")
-        st.error("❌ Long Wait Times (Call)")
-        st.error("❌ Fee Transparency")
-
-
-# ======================================================================================
-# 5. CHATBOT
-# Mereplikasi fungsionalitas chatbot menggunakan st.chat
-# ======================================================================================
-if st.session_state.show_chat:
-    with st.dialog("🤖 VIRA, your AI Assistant", width="large"):
         # Tampilkan riwayat obrolan
         for msg in st.session_state.messages:
             with st.chat_message(msg["role"]):
                 st.write(msg["content"])
 
         # Input dari pengguna
-        if prompt := st.chat_input("Ask about insights, alerts..."):
-            # Tambahkan pesan pengguna ke riwayat
+        if prompt := st.chat_input("Ask about insights..."):
             st.session_state.messages.append({"role": "user", "content": prompt})
             with st.chat_message("user"):
                 st.write(prompt)
 
-            # Dapatkan dan tampilkan respons bot
             with st.chat_message("assistant"):
                 with st.spinner("Thinking..."):
                     response = get_bot_response(prompt)
                     st.write(response)
-            # Tambahkan respons bot ke riwayat
             st.session_state.messages.append({"role": "assistant", "content": response})
-            
-            # Pemicu untuk menjalankan ulang agar pesan baru muncul segera
             st.rerun()
-
