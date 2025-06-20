@@ -534,22 +534,22 @@ row1_col1, row1_col2, row1_col3 = st.columns(3)
 
 with row1_col1:
     st.markdown("""
-        <div style="border-bottom: 1px solid var(--light-border-color); padding-bottom: 0.8rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-            <h3>Customer Health Score</h3>
-            <button style="background: rgba(0, 0, 0, 0.04); border: none; padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.78rem; color: var(--text-secondary);">Export</button>
-        </div>
-        """, unsafe_allow_html=True)
-    
-        # Widget filters
-        health_filter_options = ["Real-time", "Daily Trend", "Comparison"]
-        health_widget_filter = create_widget_filters(health_filter_options, st.session_state.health_widget_filter, "health_filter")
-        st.session_state.health_widget_filter = health_widget_filter
-    
-        # Get health score data based on selected time filter
-        health_data = health_score_data.get(st.session_state.time_filter, health_score_data["month"])
-    
-        # Display health score
-        st.markdown(f"""
+    <div style="border-bottom: 1px solid var(--light-border-color); padding-bottom: 0.8rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+        <h3>Customer Health Score</h3>
+        <button style="background: rgba(0, 0, 0, 0.04); border: none; padding: 0.5rem 0.8rem; border-radius: 6px; font-size: 0.78rem; color: var(--text-secondary);">Export</button>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Widget filters
+    health_filter_options = ["Real-time", "Daily Trend", "Comparison"]
+    health_widget_filter = create_widget_filters(health_filter_options, st.session_state.health_widget_filter, "health_filter")
+    st.session_state.health_widget_filter = health_widget_filter
+
+    # Get health score data based on selected time filter
+    health_data = health_score_data.get(st.session_state.time_filter, health_score_data["month"])
+
+    # Display health score
+    st.markdown(f"""
     <div class="health-score">
         <div class="health-score-value">
             {health_data["score"]}<span>%</span>
@@ -564,25 +564,25 @@ with row1_col1:
         </div>
     </div>
     """, unsafe_allow_html=True)
-    
-        # Health trend chart
-        fig, ax = plt.subplots(figsize=(4, 2))
-        ax.plot(health_data["labels"], health_data["values"], color='#34c759', linewidth=2)
-        ax.fill_between(health_data["labels"], health_data["values"], min(health_data["values"])-2, color='#34c759', alpha=0.15)
-        ax.set_ylim(min(health_data["values"])-2, max(health_data["values"])+2)
-        ax.grid(axis='y', linestyle='--', alpha=0.3)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.tick_params(axis='x', labelsize=8)
-        ax.tick_params(axis='y', labelsize=8)
-        st.pyplot(fig)
-    
-        st.markdown("""
-        <div class="widget-summary">
-            Overall customer satisfaction is strong, showing a positive trend this month.
-        </div>
-        """, unsafe_allow_html=True)
+
+    # Health trend chart
+    fig, ax = plt.subplots(figsize=(4, 2))
+    ax.plot(health_data["labels"], health_data["values"], color='#34c759', linewidth=2)
+    ax.fill_between(health_data["labels"], health_data["values"], min(health_data["values"])-2, color='#34c759', alpha=0.15)
+    ax.set_ylim(min(health_data["values"])-2, max(health_data["values"])+2)
+    ax.grid(axis='y', linestyle='--', alpha=0.3)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.tick_params(axis='x', labelsize=8)
+    ax.tick_params(axis='y', labelsize=8)
+    st.pyplot(fig)
+
+    st.markdown("""
+    <div class="widget-summary">
+        Overall customer satisfaction is strong, showing a positive trend this month.
+    </div>
+    """, unsafe_allow_html=True)
 
 # Critical Alerts Widget
 with row1_col2:
