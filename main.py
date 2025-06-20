@@ -132,7 +132,7 @@ def load_data_from_google_sheets():
                       DataFrame if an error occurs.
     """
     try:
-        [span_0](start_span)gcp_creds_table = st.secrets["gcp_service_account_credentials"] #[span_0](end_span)
+        [span_0](start_span)gcp_creds_table = st.secrets["gcp_service_account_credentials"][span_0](end_span)
         creds_info = {
             [span_1](start_span)"type": gcp_creds_table["type"], #[span_1](end_span)
             [span_2](start_span)"project_id": gcp_creds_table["project_id"], #[span_2](end_span)
